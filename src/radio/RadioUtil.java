@@ -136,7 +136,7 @@ public class RadioUtil {
 	 * @param logBaseString
 	 * The name of the file base directory.
 	 */
-	public static void backupData(byte[] buffer, String logBaseString){
+	public static void backupData(String data, String logBaseString){
 //		//Get a timestamp to attach to the message (in local time)
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 //		String timeStamp = sdf.format(new Date());
@@ -154,9 +154,8 @@ public class RadioUtil {
 		}
 		try {
 			out = new BufferedWriter(new FileWriter(new File(logBaseString + logTimeStamp + ".txt"), true));
-			String msg = new String(RadioUtil.trimTrailing0s(buffer));
-			if(msg.length() > 0){
-				out.write(msg + "\n");
+			if(data.length() > 0){
+				out.write(data + "\n");
 			}
 			out.close();
 		} catch(Exception e){

@@ -55,18 +55,12 @@ public class RadioSerialReader implements Runnable {
 	 * @throws IOException 
 	 * If something goes wrong writing to the server's clients
 	 */
-	public void handleSerialDataReceived(byte[] data) throws IOException {
+	public void handleSerialDataReceived(String data) throws IOException {
 		//Back up the data locally
 		RadioUtil.backupData(data, RadioUtil.getJarDirectory() + "Data-Logs/Serial-Data/Port-" + serialPortNum + "/");
 
-		//Send it to each of the server's clients
-//		for(OutputStream clientOut : server.getClientOuts()){
-//			if(clientOut != null){
-//				clientOut.write(data);
-//			}
-//		}
 		if(CLIENT_NUM > 0 && server.getClient(CLIENT_NUM) != null){
-			server.getClient(CLIENT_NUM).getOutputStream().write(data);
+			server.getClient(CLIENT_NUM).getOutputStream().write((data + "\n").getBytes());
 		} else{
 			System.out.println("INVALID CLIENT NUMBER: " + CLIENT_NUM);
 		}
@@ -76,23 +70,21 @@ public class RadioSerialReader implements Runnable {
 	public void run(){
 		boolean keepRunning = true;
 		BufferedReader br = new BufferedReader(new InputStreamReader(serialIn));
-		String line;
+		String line = null;
 		while(keepRunning){
 			try{
 				while((line = br.readLine()) != null){
 					if(RadioServer.LAST_COMMAND != null){
 						String data = RadioServer.LAST_COMMAND + line;
-						handleSerialDataReceived(data.getBytes());
+						handleSerialDataReceived(data);
 						Thread.sleep(100);
 					}
 				}
 			} catch(IOException e){
 				try{
-					// ignore it, the stream is temporarily empty,RXTX's
-					// just whining
+					//The stream is empty
 					Thread.sleep(100);
 				} catch(InterruptedException ex){
-					// something interrupted our sleep, exit ...
 					keepRunning = false;
 				}
 			} catch(InterruptedException e){

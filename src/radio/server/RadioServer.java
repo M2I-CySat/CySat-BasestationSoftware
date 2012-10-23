@@ -29,7 +29,7 @@ public class RadioServer {
 	 * The most recent command issued to the serial ports
 	 */
 	public static String LAST_COMMAND = null;
-	
+
 	/**
 	 * The number of serial connections handled by the server
 	 */
@@ -39,8 +39,6 @@ public class RadioServer {
 	 * The baud rate of the antenna
 	 */
 	private int BAUD_RATE = 9600;
-
-	// public static final int CLIENT_TIMEOUT = 10000; // 10 Seconds
 
 	/**
 	 * The port number that this server is assigned to
@@ -97,7 +95,10 @@ public class RadioServer {
 	 * The server socket that is the server itself
 	 */
 	private ServerSocket server;
-	
+
+	/**
+	 * The serial readers for each port
+	 */
 	private ArrayList<RadioSerialReader> serialReaders = new ArrayList<RadioSerialReader>();
 
 	/**
@@ -124,11 +125,6 @@ public class RadioServer {
 	public void startServer(String... serialPorts) throws Exception{
 		if(portNum == -1){
 			throw new IllegalStateException("Must have a valid port number.");
-			// } else if(serialPorts == null || serialPorts.length !=
-			// NSERIAL_CONNECTIONS){
-			// throw new IllegalArgumentException("Must have " +
-			// NSERIAL_CONNECTIONS +
-			// " serial ports to connect to.");
 		} else if(serialPorts == null || serialPorts.length == 0){
 			throw new IllegalArgumentException("Must have at least 1 port to connect to .");
 		} else{
@@ -139,7 +135,8 @@ public class RadioServer {
 		serialOuts = new OutputStream[NSERIAL_CONNECTIONS];
 
 		for(int i = 0; i < serialPorts.length; i++){
-			connectToSerialPort(serialPorts[i], i);
+			connect(serialPorts[i], i);
+			System.out.println("Connected to: " + serialPorts[i]);
 		}
 
 		for(int i = 0; i < serialIns.length; i++){
@@ -157,16 +154,15 @@ public class RadioServer {
 		while(true){
 			Socket client = server.accept();
 			clientNum++;
-			// client.setSoTimeout(CLIENT_TIMEOUT);
+
 			clients.add(new ClientPair(client, clientNum));
 			clientIns.add(client.getInputStream());
 			clientOuts.add(client.getOutputStream());
 			System.out.println();
-			System.out.println("Connected to client: " + client.getRemoteSocketAddress());
+			System.out.println("Connected to client #" + clientNum + ": " + client.getRemoteSocketAddress());
 			System.out.println("===== SERVER READY TO HANDLE MESSAGES =====");
 			System.out.println();
 
-			// (new Thread(new SerialReader(serialIn))).start();
 			(new Thread(new ClientDataReader(client.getInputStream(), this, clientNum))).start();
 		}
 	}
@@ -179,12 +175,19 @@ public class RadioServer {
 	public ArrayList<ClientPair> getClients(){
 		return clients;
 	}
-	
+
+	/**
+	 * Get the serial reader for the given port num
+	 * 
+	 * @param serialPortNum
+	 *            The serial port number
+	 * @return The serial reader for that port
+	 */
 	public RadioSerialReader getSerialReader(int serialPortNum){
 		if(serialPortNum < 0 || serialPortNum >= serialReaders.size()){
 			return null;
 		}
-		
+
 		return serialReaders.get(serialPortNum);
 	}
 
@@ -320,40 +323,6 @@ public class RadioServer {
 	 *            The name of the serial port [COM3, /dev/ttyUSB0, etc.]
 	 * @param serialPortNum
 	 *            The number of the serial port
-	 * @throws TooManyListenersException
-	 * @throws IOException
-	 * @throws UnsupportedCommOperationException
-	 * @throws PortInUseException
-	 * @throws NoSuchPortException
-	 *             If something goes wrong
-	 */
-	private void connectToSerialPort(String portName, int serialPortNum) throws NoSuchPortException,
-			PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException{
-		// CommunicationPortUtil.listPorts();
-		String os = System.getProperty("os.name");
-		String defaultPortName = null;
-		if(os.toLowerCase().contains("linux")){
-			defaultPortName = "/dev/ttyUSB0";
-		} else{
-			defaultPortName = "COM3";
-		}
-
-		if(portName == null){
-			connect(defaultPortName, serialPortNum);
-		} else{
-			connect(portName, serialPortNum);
-		}
-
-		System.out.println("Connected to: " + portName);
-	}
-
-	/**
-	 * Connect to a serial port identified by its name and serial port number
-	 * 
-	 * @param portName
-	 *            The name of the serial port [COM3, /dev/ttyUSB0, etc.]
-	 * @param serialPortNum
-	 *            The number of the serial port
 	 * @throws NoSuchPortException
 	 * @throws PortInUseException
 	 * @throws UnsupportedCommOperationException
@@ -382,10 +351,6 @@ public class RadioServer {
 				serialIns[serialPortNum] = serialPort.getInputStream();
 				serialOuts[serialPortNum] = serialPort.getOutputStream();
 
-				// (new Thread(new SerialWriter(serialOut))).start();
-
-//				 serialPort.addEventListener(new SerialReaderListener(serialIns[serialPortNum], this, serialPortNum));
-//				 serialPort.notifyOnDataAvailable(true);
 				RadioSerialReader serialReader = new RadioSerialReader(serialIns[serialPortNum], this, serialPortNum);
 				serialReaders.add(serialReader);
 				(new Thread(serialReader)).start();

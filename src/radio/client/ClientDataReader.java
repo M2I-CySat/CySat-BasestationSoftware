@@ -26,23 +26,15 @@ public class ClientDataReader implements Runnable {
 		server.getSerialOut(serialPortNum).write(cmd.getBytes());
 	}
 
-	private void handleClientDataReceived(byte[] buffer, int serialPortNum) throws IOException{
+	private void handleClientDataReceived(String data, int serialPortNum) throws IOException{
 		if(serialPortNum < 0 || serialPortNum > 9){
 			return;
 		}
-		
-		String msg = new String(RadioUtil.trimTrailing0s(buffer));
-		
-//		if(!msg.endsWith("\r\n")){
-//			msg = msg.substring(0, msg.length() - 1) + "\r\n";
-//		}
 
-		RadioUtil.backupData(buffer, RadioUtil.getJarDirectory() + "Data-Logs/Client-Data/");
+		RadioUtil.backupData(data, RadioUtil.getJarDirectory() + "Data-Logs/Client-Data/");
 		if(server.getSerialOut(serialPortNum) != null){
-//			server.getSerialOut(serialPortNum).write(buffer);
-//			ClientTextArea.processMessage("Received from client: " + msg);
-			processCommand(msg, serialPortNum);
-			System.out.println("Received from client #" + clientNum + ": " + msg);
+			processCommand(data, serialPortNum);
+			System.out.println("Received from client #" + clientNum + ": " + data);
 			if(server.getSerialReader(serialPortNum) != null){
 				server.getSerialReader(serialPortNum).CLIENT_NUM = clientNum;
 			} else{
@@ -59,16 +51,9 @@ public class ClientDataReader implements Runnable {
 		byte[] buffer = new byte[RadioUtil.BUFFER_SIZE];
 		try{
 			while(in.read(buffer) != -1){
-//				System.out.println("HELLO!");
-//				if(buffer[0] == HeartBeatGenerator.HEARTBEAT_VALUE){
-//					long lastHeartBeatTime = System.currentTimeMillis();
-//					System.out.println("Got heartbeat #" + clientNum + 
-//										" @" + lastHeartBeatTime/1000);
-//					continue;
-//				}
-				
 				String msg = new String(buffer, 0, RadioUtil.trimTrailing0s(buffer).length);
 				if(msg.length() > 0){
+					//Replace the line ending on the command with a single '\r'
 					int windows = msg.lastIndexOf("\r\n");
 					int unix = msg.lastIndexOf("\n");
 					if(windows > -1){
@@ -77,18 +62,14 @@ public class ClientDataReader implements Runnable {
 						msg = msg.substring(0, unix);
 					}
 					
-					msg += '\r';
-					
-//					System.out.println("MESSAGE: " + Arrays.toString(msg.getBytes()) + "(" + msg + ")");
 					int serialPortNum = -1;
-
 					if(Character.isDigit(msg.charAt(0))){
 						serialPortNum = (int) (msg.charAt(0) - '0'); 
 					} else{
 						System.err.println("Ignoring message without specified serial destination.");
 					}
 
-					//Get just the base part of the command
+					//Get just the base part of the command (after the port number)
 					String cmd = msg.substring(1);
 					while(cmd.length() < 2){
 						cmd += ' '; 	
@@ -96,7 +77,10 @@ public class ClientDataReader implements Runnable {
 					cmd = cmd.substring(0, 2);
 					RadioServer.LAST_COMMAND = cmd;
 					
-					handleClientDataReceived(msg.substring(1).getBytes(), serialPortNum);
+					//Add a single '\r' to the end of the message (so the antenna rotator recognizes it)
+					msg += '\r';
+					
+					handleClientDataReceived(msg.substring(1), serialPortNum);
 					RadioUtil.clear(buffer);
 				}
 			}
