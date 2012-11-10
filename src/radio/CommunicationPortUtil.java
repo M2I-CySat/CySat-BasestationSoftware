@@ -7,6 +7,7 @@ import gnu.io.*;
 
 /**
  * A utility class for the communication ports
+ * 
  * @author RXTX
  */
 public class CommunicationPortUtil {

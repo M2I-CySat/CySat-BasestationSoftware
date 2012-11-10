@@ -8,47 +8,72 @@ import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import radio.RadioUtil;
 
+/**
+ * A client class to communicate with the base station server
+ * 
+ * @author Adam Campbell
+ */
 public class RadioClient {
-	private static Socket server = null;
-	private static InputStream serverIn;
-	private static OutputStream serverOut;
+	/**
+	 * The server socket
+	 */
+	private Socket server = null;
 
-	private static DataInThread dataIn;
-	private static DataOutThread dataOut;
+	/**
+	 * The server input stream
+	 */
+	private InputStream serverIn;
 
-	@SuppressWarnings("resource")
-	public static void main(String[] args){
-		String host = "";
-		int portNum = 0;
+	/**
+	 * The server output stream
+	 */
+	private OutputStream serverOut;
+
+	/**
+	 * The thread that reads data from the server and handles it
+	 */
+	private DataInThread dataIn;
+
+	/**
+	 * The data that the client has received from the server
+	 */
+	private List<String> data;
+
+	/**
+	 * Start the client
+	 * 
+	 * @param args
+	 *            The host and port number of the server
+	 */
+	public RadioClient(String host, int portNum, String username, String password) {
+		data = (List<String>) Collections.synchronizedList(new ArrayList<String>());
+
 		try{
-			if(args.length != 2){
-				Scanner scan = new Scanner(System.in);
-				System.out.print("Host: ");
-				host = scan.next();
-				System.out.print("Port: ");
-				portNum = scan.nextInt();
-			} else{
-				host = args[0];
-				portNum = Integer.parseInt(args[1]);
-			}
+			// Connect to the server
 			server = new Socket(host, portNum);
 
 			serverIn = server.getInputStream();
 			serverOut = server.getOutputStream();
 
-			System.out.println();
-			System.out.println("===== CLIENT READY TO HANDLE MESSAGES =====");
-			System.out.println();
+			// Check to see if the username and password are valid
+			if(validate(username, password)){
+				System.out.println();
+				System.out.println("===== CLIENT READY TO HANDLE MESSAGES =====");
+				System.out.println();
 
-			dataIn = new DataInThread(new BufferedReader(new InputStreamReader(serverIn)));
-			dataIn.start();
-
-			dataOut = new DataOutThread(serverOut);
-			dataOut.start();
+				// Start the data thread
+				dataIn = new DataInThread(new BufferedReader(new InputStreamReader(serverIn)));
+				dataIn.start();
+			} else{
+				System.out.println("Invalid username and password. Exiting...");
+				die();
+			}
 		} catch(ConnectException e){
 			System.err.println("Unable to connect to " + host + ":" + portNum + ". Exiting...");
 			die();
@@ -63,58 +88,97 @@ public class RadioClient {
 		}
 	}
 
-	private static void die(){
+	/**
+	 * Validate this client using a username and password. This information will
+	 * be checked against a whitelist of valid users that is maintained by the
+	 * server. If the login info appears in the whitelist then the server shall
+	 * deem this client validated and communication with the serial ports may
+	 * proceed.
+	 * 
+	 * @param username
+	 *            The username to give to the server
+	 * @param password
+	 *            The password to give to the server
+	 * @return True if the validation was successful and false otherwise
+	 * @throws IOException
+	 *             If there's an error reading from or writing to the server
+	 */
+	private boolean validate(String username, String password) throws IOException{
+		// Write the username and password to the server
+		serverOut.write(username.getBytes());
+		serverOut.write(password.getBytes());
+
+		// Wait for the server's response
+		byte[] buffer = new byte[RadioUtil.BUFFER_SIZE];
+		serverIn.read(buffer);
+		String serverResponse = new String(RadioUtil.trimTrailing0s(buffer));
+
+		// If the server responded with the valid user message, then we're good
+		return serverResponse.equals(RadioUtil.VALID_USER_MESSAGE);
+	}
+
+	/**
+	 * Whether or not the client has data from the server
+	 * 
+	 * @return
+	 */
+	public synchronized boolean hasData(){
+		return data.size() > 0;
+	}
+
+	/**
+	 * Get the oldest data element from the server. The data acts like a queue
+	 * in that regard (FIFO), so if there are multiple data elements, this
+	 * method can be called to get them in order from oldest to most recent.
+	 * 
+	 * @return
+	 */
+	public synchronized String getData(){
+		if(!hasData())
+			return null;
+
+		return data.remove(0);
+	}
+
+	/**
+	 * Get the input stream (for reading from the server)
+	 * 
+	 * @return
+	 */
+	public InputStream getInputStream(){
+		return serverIn;
+	}
+
+	/**
+	 * Get the output stream (for writing to the server)
+	 * 
+	 * @return
+	 */
+	public OutputStream getOutputStream(){
+		return serverOut;
+	}
+
+	/**
+	 * Called when the client needs to die
+	 */
+	public void die(){
 		System.exit(0);
 	}
 
-	private static void processSerialDataReceived(String command, String data){
-		// System.out.println("DATA RECEIVED: " + data + " [" + data.length() +
-		// "]");
-		if(command == null){
-			System.out.println("Error in command...");
-			return;
-		}
-		command = command.toUpperCase();
-		if(command.startsWith("H")){
-			System.out.println(data);
-		} else if(command.startsWith("C2")){
-			if(data.length() >= 10){
-				try{
-					int azimuth = Integer.parseInt(data.substring(2, 5));
-					int elevation = Integer.parseInt(data.substring(7, 10));
-					System.out.println("Azimuth: " + String.format("%03d", azimuth));
-					System.out.println("Elevation: " + String.format("%03d", elevation));
-				} catch(NumberFormatException e){
-					System.err.println("Error in C2 serial data received: " + data);
-				}
-			} else{
-				System.err.println("Error in C2 serial data received: " + data);
-			}
-		} else if(command.startsWith("C")){
-			if(data.length() >= 4){
-				int azimuth = Integer.parseInt(data.substring(2, 5));
-				System.out.println("Azimuth: " + String.format("%03d", azimuth));
-			}
-		} else{
-			System.err.println("Serial data received: " + data + ", from unrecognized command: " + command);
-		}
-	}
-
-	/*
+	/**
 	 * Reads from server, writes to console
 	 */
-	private static class DataInThread extends Thread {
+	private class DataInThread extends Thread {
 		public DataInThread(final BufferedReader in) {
 			super(new Runnable(){
 				@Override
 				public void run(){
 					String msg = null;
 					try{
+						// Read from the server and add it to the list
 						while((msg = in.readLine()) != null){
-							if(msg.length() < 3){
-								System.err.println("Ignoring invalid message received.");
-							} else{
-								processSerialDataReceived(msg.substring(0, 2), msg.substring(2));
+							synchronized(data){
+								data.add(msg);
 							}
 						}
 					} catch(SocketException e){
@@ -123,29 +187,6 @@ public class RadioClient {
 					} catch(IOException e){
 						System.err.println("Error when reading from server.");
 						e.printStackTrace();
-					}
-				}
-			});
-		}
-	}
-
-	/*
-	 * Reads from console, writes to server
-	 */
-	private static class DataOutThread extends Thread {
-		public DataOutThread(final OutputStream out) {
-			super(new Runnable(){
-				@Override
-				public void run(){
-					byte[] buffer = new byte[RadioUtil.BUFFER_SIZE];
-					try{
-						while(System.in.read(buffer) != -1){
-							out.write(buffer);
-							RadioUtil.clear(buffer);
-						}
-					} catch(IOException e){
-						System.err.println("Error writing to server! It may not be running. Exiting...");
-						die();
 					}
 				}
 			});
