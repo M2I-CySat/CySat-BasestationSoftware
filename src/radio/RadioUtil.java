@@ -137,7 +137,19 @@ public class RadioUtil {
 	public static String getJarDirectory(){
 		String path = RadioServer.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		try{
-			return URLDecoder.decode(path, "UTF-8");
+			String dir = URLDecoder.decode(path, "UTF-8");
+			
+			//Get rid of the jar file ending (this happens if we run the server from an .exe)
+			if(dir.endsWith(".jar")){
+				dir = dir.substring(0, dir.lastIndexOf('/'));
+			}
+			
+			//Make sure there's a directory separator
+			if(!dir.endsWith("/")){
+				dir += "/";
+			}
+			
+			return dir;
 		} catch(UnsupportedEncodingException e){
 			e.printStackTrace();
 			return "";
