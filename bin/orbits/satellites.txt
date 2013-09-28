@@ -1,0 +1,37 @@
+http://www.celestrak.com/NORAD/elements/noaa.txt
+NOAA 1 [-]              
+NOAA 2 [-]              
+NOAA 3 [-]              
+NOAA 4 [-]              
+NOAA 5 [-]              
+NOAA 6 [P]              
+NOAA 7 [-]              
+NOAA 8 [-]              
+NOAA 9 [P]              
+NOAA 10 [-]             
+NOAA 11 [-]             
+NOAA 12 [-]             
+NOAA 13 [-]             
+NOAA 14 [-]             
+NOAA 15 [P]             
+NOAA 16 [P]             
+NOAA 17 [P]             
+NOAA 18 [+]             
+NOAA 19 [+]             
+NPP [+]                 
+
+http://www.celestrak.com/NORAD/elements/stations.txt
+ISS (ZARYA)             
+TIANGONG 1
+RAIKO                   
+FITSAT-1 (NIWAKA)       
+TECHEDSAT               
+F-1                     
+#WE-WISH                 
+#PROGRESS-M 18M          
+
+http://www.celestrak.com/NORAD/elements/cubesat.txt
+CUBESAT XI-IV (CO-57)
+CUBESAT XI-V (CO-58) 
+SWISSCUBE
+AAU CUBESAT   
