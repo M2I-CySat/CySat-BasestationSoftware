@@ -75,7 +75,7 @@ public class AntennaRotator {
 			throw new IllegalArgumentException("Invalid Elevation value!");
 		}
 
-		String cmd = String.format("%dW%03d %03d\\r", serialPortNum, azimuth, elevation);
+		String cmd = String.format("%dW%03d %03d\\r\n", serialPortNum, azimuth, elevation);
 		client.write(cmd);
 	}
 
@@ -95,7 +95,7 @@ public class AntennaRotator {
 			throw new IllegalArgumentException("Invalid Azimuth value!");
 		}
 
-		String cmd = String.format("%dW%03d\\r", serialPortNum, azimuth, elevation);
+		String cmd = String.format("%dW%03d\\r\n", serialPortNum, azimuth, elevation);
 		client.write(cmd);
 	}
 
@@ -143,7 +143,7 @@ public class AntennaRotator {
 	 */
 	public void pollServer() throws IOException{
 		// Send the C2 command
-		String cmd = String.format("%dC2\\r", serialPortNum, azimuth, elevation);
+		String cmd = String.format("%dC2\\r\n", serialPortNum, azimuth, elevation);
 		client.write(cmd);
 
 		// Get the response and parse it
@@ -152,7 +152,7 @@ public class AntennaRotator {
 			Scanner dataScanner = new Scanner(data);
 
 			// The data comes in as "+AAA+EEE"
-			Pattern dataPattern = Pattern.compile("\\+([0-9]{3})\\+([0-9]{3})");
+			Pattern dataPattern = Pattern.compile("\\+([0-9]{4})\\+([0-9]{4})");
 			if(dataScanner.hasNext(dataPattern)){
 				try{
 					azimuth = Integer.parseInt(dataScanner.match().group(1));
@@ -184,5 +184,6 @@ public class AntennaRotator {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.exit(0);
 	}
 }

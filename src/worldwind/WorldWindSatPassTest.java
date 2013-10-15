@@ -35,13 +35,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import orbits.AzElPair;
 import orbits.CelestrakSatellite;
 import orbits.CommandSet;
+import orbits.SatellitePass;
 import serial.client.SerialClient;
-import uk.me.g4dpz.satellite.GroundStationPosition;
-import uk.me.g4dpz.satellite.PassPredictor;
 import uk.me.g4dpz.satellite.SatPassTime;
+import uk.me.g4dpz.satellite.SatPos;
 import uk.me.g4dpz.satellite.TLE;
 import util.SatelliteUtils;
 import api.AntennaRotator;
@@ -272,12 +271,10 @@ public class WorldWindSatPassTest {
 						return;
 					}
 
-					GroundStationPosition ames = new GroundStationPosition(SatelliteUtils.AMES_LATITUDE, 
-								SatelliteUtils.AMES_LONGITUDE, SatelliteUtils.AMES_ELEVATION_METERS);
-					PassPredictor pp = new PassPredictor(tle, ames);
-					// SimpleDateFormat sdf = new
-					// SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-					SatPassTime spt = pp.nextSatPass(new Date());
+					int timeStep = 5;
+					SatellitePass satPass = SatelliteUtils.getNextSatellitePass(satellite.getSatName(), timeStep, new Date(), SatelliteUtils.MIN_ELEV);
+					SatPassTime spt = satPass.getSatPassTime();
+					
 					System.out.println();
 					System.out.println("For satellite: " + satellite.getSatName() + " @"
 							+ satellite.getInfoPage().getURL());
@@ -289,11 +286,9 @@ public class WorldWindSatPassTest {
 
 					worldWindCanvas.setView(new ClippingBasicOrbitView());
 
-					int timeStep = 5;
-					List<AzElPair> list = SatelliteUtils.getPassPathPoints(spt, timeStep);
-					cmdSet = SatelliteUtils.getRotatorCommandSet(list, spt.getStartTime().getTime(), timeStep);
-					addPath(worldWindCanvas, list);
-
+					cmdSet = SatelliteUtils.getRotatorCommandSet(satPass.getPassPoints(), spt.getStartTime().getTime(), timeStep);
+					addPath(worldWindCanvas, satPass.getPassPoints());
+					
 					startTracking.setEnabled(true);
 				} catch(Exception e2){
 					e2.printStackTrace();
@@ -380,10 +375,10 @@ public class WorldWindSatPassTest {
 		worldWindCanvas.getModel().getLayers().add(layer);
 	}
 
-	private void addPath(WorldWindowGLCanvas worldWindCanvas, List<AzElPair> list){
+	private void addPath(WorldWindowGLCanvas worldWindCanvas, List<SatPos> list){
 		LinkedList<Position> positions = new LinkedList<Position>();
-		for(AzElPair latLong : list){
-			positions.add(Position.fromDegrees(latLong.getEl(), -latLong.getAz(), 100000));
+		for(SatPos satPos : list){
+			positions.add(Position.fromDegrees(satPos.getElevation(), -satPos.getAzimuth(), 100000));
 		}
 
 		// create "Polyline" with list of "Position" and set color / thickness

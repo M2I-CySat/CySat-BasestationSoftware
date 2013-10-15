@@ -13,10 +13,8 @@ import java.util.Scanner;
 
 import javax.swing.JOptionPane;
 
-import orbits.AzElPair;
 import orbits.CelestrakSatellite;
 import orbits.CommandSet;
-import orbits.PassPath;
 import orbits.SatellitePass;
 import orbits.TLEInfoPage;
 
@@ -28,12 +26,14 @@ import uk.me.g4dpz.satellite.InvalidTleException;
 import uk.me.g4dpz.satellite.PassPredictor;
 import uk.me.g4dpz.satellite.SatNotFoundException;
 import uk.me.g4dpz.satellite.SatPassTime;
+import uk.me.g4dpz.satellite.SatPos;
 import uk.me.g4dpz.satellite.TLE;
 
 public class SatelliteUtils {
-	public static final double AMES_LATITUDE = 42.03472;
-	public static final double AMES_LONGITUDE = -93.62;
+	public static final double AMES_LATITUDE = 42.027087;
+	public static final double AMES_LONGITUDE = -93.653373;
 	public static final double AMES_ELEVATION_METERS = 287;
+	public static final double MIN_ELEV = 10.0; //Minimum elevation in degrees to consider a satellite pass
 	
 	private static ArrayList<CelestrakSatellite> satellites;
 	private static String satInfoFile = "/orbits/satellites.txt";
@@ -129,11 +129,11 @@ public class SatelliteUtils {
 		s.close();
 	}
 	
-	public static List<SatellitePass> getNextSatellitePasses(String satName, int timeStep, int nTimes) {
+	public static List<SatellitePass> getNextSatellitePasses(String satName, int timeStep, int nTimes, double minElev) {
 		List<SatellitePass> passes = new ArrayList<SatellitePass>();
 		Date startDate = new Date();
 		for(int i=0; i < nTimes; i++){
-			SatellitePass pass = getNextSatellitePass(satName, timeStep, startDate);
+			SatellitePass pass = getNextSatellitePass(satName, timeStep, startDate, minElev);
 			if(pass != null){
 				passes.add(pass);
 				startDate = new Date(pass.getSatPassTime().getEndTime().getTime() + 1000L);
@@ -144,10 +144,14 @@ public class SatelliteUtils {
 	}
 	
 	public static SatellitePass getNextSatellitePass(String satName, int timeStep){
-		return getNextSatellitePass(satName, timeStep, new Date());
+		return getNextSatellitePass(satName, timeStep, new Date(), 0);
 	}
 	
-	public static SatellitePass getNextSatellitePass(String satName, int timeStep, Date date){
+	public static SatellitePass getNextSatellitePass(String satName, int timeStep, Date date, double minElev){
+		if (minElev > 70) {
+			System.err.println("Warning! A high minElev will result in very sparse satellite passes, perhaps even none.");
+		}
+		
 		CelestrakSatellite satellite = SatelliteUtils.getSatellite(satName);
 		if(satellite == null){
 			JOptionPane.showMessageDialog(null, "Invalid satellite! Unable to show pass data.");
@@ -168,13 +172,19 @@ public class SatelliteUtils {
 						SatelliteUtils.AMES_LONGITUDE, SatelliteUtils.AMES_ELEVATION_METERS);
 		
 			PassPredictor pp = new PassPredictor(tle, ames);
-			SatPassTime spt = pp.nextSatPass(date);
-			
+			SatPassTime spt = null;
+			do {
+				spt = pp.nextSatPass(date);
+				date = new Date(spt.getEndTime().getTime() + 1000L); //1s past end of previous pass
+			} while (spt.getMaxEl() < minElev);
+
 			satPass.setGroundStation(ames);
 			satPass.setSatPassTime(spt);
 			
 			satPass.setTimeStep(timeStep);
-			satPass.setPassPoints(SatelliteUtils.getPassPathPoints(spt, timeStep));
+
+			List<SatPos> passPoints = pp.getPositions(spt.getStartTime(), timeStep, 0, (int) ((spt.getEndTime().getTime() - spt.getStartTime().getTime())/1000/60));
+			satPass.setPassPoints(passPoints, true);
 			
 			return satPass;
 		} catch(Exception e){
@@ -182,16 +192,11 @@ public class SatelliteUtils {
 		}
 	}
 	
-	public static List<AzElPair> getPassPathPoints(SatPassTime spt, int timeStep){
-		PassPath pp = new PassPath(spt.getAosAzimuth(), spt.getLosAzimuth(), spt.getMaxEl(), getDuration(spt));
-
-		return pp.getLatLongs(timeStep);
-	}
-	public static CommandSet getRotatorCommandSet(List<AzElPair> list, long baseTime, int timeStep){
+	public static CommandSet getRotatorCommandSet(List<SatPos> list, long baseTime, int timeStep){
 		CommandSet cmdSet = new CommandSet(new Date(baseTime), timeStep);
 
-		for(AzElPair pair : list){
-			cmdSet.add(String.format("%03d %03.0f", (int) ((pair.getAz() + 180) % 360), pair.getEl()));
+		for(SatPos satPos : list){
+			cmdSet.add(String.format("%03d %03.0f", (int) ((satPos.getAzimuth() + 180) % 360), satPos.getElevation()));
 		}
 
 		return cmdSet;

@@ -76,17 +76,19 @@ public class SerialDataReader implements Runnable {
 	public void run(){
 		boolean keepRunning = true;
 		BufferedReader br = new BufferedReader(new InputStreamReader(serialIn));
-		String line = null;
+//		String line = null;
 		
 		while(keepRunning){
 			try{
 				//Read a line and process it, checking every 100ms
-				while((line = br.readLine()) != null){
-					if(!line.isEmpty()){
-						handleSerialDataReceived(line);
+				String data = readSerialData(br, "\n\r;");
+//				while(){
+					if(!data.isEmpty()){
+						handleSerialDataReceived(data);
 					}
-				}
+//				}
 			} catch(IOException e){
+//				e.printStackTrace();
 				//The stream is empty
 				try {
 					Thread.sleep(100);
@@ -95,5 +97,20 @@ public class SerialDataReader implements Runnable {
 				}
 			}
 		}
+	}
+	
+	private String readSerialData(BufferedReader br, String terminators) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		int data;
+		while((data = br.read()) != -1) {
+			if(terminators.contains("" + ((char) data))) {
+				return sb.toString();
+			} else {
+				System.out.println("DATA: " + data + " :: " + (char)data);
+				sb.append((char) data);
+			}
+		}
+		
+		return sb.toString();
 	}
 }

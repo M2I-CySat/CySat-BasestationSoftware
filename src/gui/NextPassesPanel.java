@@ -9,16 +9,18 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class NextPassesPanel extends JPanel {
 	private NextPassesView nextPassesView;
+	private LabelText panelTitle;
 	
 	public NextPassesPanel(){
 		super();
 		setLayout(new BorderLayout());
 		
-		String satName = "ISS (ZARYA)";
-		nextPassesView = new NextPassesView();
-		nextPassesView.showNextPasses(satName, 10);
 		
-		LabelText panelTitle = new LabelText("Next Passes - " + satName);
+		nextPassesView = new NextPassesView();
+//		String satName = "ISS (ZARYA)";
+//		nextPassesView.showNextPasses(satName, 5);
+		
+		panelTitle = new LabelText("- No Satellite Chosen -");
 		panelTitle.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 		panelTitle.setBackground(Color.LIGHT_GRAY);
 		panelTitle.setForeground(Color.BLACK);
@@ -29,5 +31,9 @@ public class NextPassesPanel extends JPanel {
 	
 	public NextPassesView getNextPassesView(){
 		return nextPassesView;
+	}
+	
+	public void setSatTitle(String satName) {
+		panelTitle.setText("- Next Passes - " + satName + " -");
 	}
 }

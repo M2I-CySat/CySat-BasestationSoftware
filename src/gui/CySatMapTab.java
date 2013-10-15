@@ -9,48 +9,52 @@ import gov.nasa.worldwind.render.Polyline;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import orbits.AzElPair;
 import orbits.CelestrakSatellite;
 import orbits.CommandSet;
+import orbits.SatellitePass;
 import serial.client.SerialClient;
-import uk.me.g4dpz.satellite.GroundStationPosition;
-import uk.me.g4dpz.satellite.PassPredictor;
 import uk.me.g4dpz.satellite.SatPassTime;
-import uk.me.g4dpz.satellite.TLE;
+import uk.me.g4dpz.satellite.SatPos;
 import util.SatelliteUtils;
 import worldwind.ClippingBasicOrbitView;
 import api.AntennaRotator;
 
-@SuppressWarnings("serial")
 public class CySatMapTab extends JPanel {
+	private static final long serialVersionUID = 1L;
 	private CommandSet cmdSet = null;
 	private Timer timer = new Timer();
+	private static final int timeStep = 5;
+	private static final boolean startTrackingImmediately = false;
+	private final int BASE_LAYERS;
+	private final CySatGUI gui;
+	private final WorldWindowGLCanvas worldWindCanvas;
+	private final JButton startTracking;
+	private final JButton connectButton;
 
 	private AntennaRotator rotator = null;
 	private SerialClient client = null;
 
 	public CySatMapTab(final CySatGUI gui) {
+		this.gui = gui;
 		setBackground(Color.RED);
 		setFocusable(false);
 
@@ -63,10 +67,10 @@ public class CySatMapTab extends JPanel {
 			System.exit(1);
 		}
 		// create a WorldWind main object
-		final WorldWindowGLCanvas worldWindCanvas = new WorldWindowGLCanvas();
+		worldWindCanvas = new WorldWindowGLCanvas();
 		worldWindCanvas.setModel(new BasicModel());
 
-		final int BASE_LAYERS = worldWindCanvas.getModel().getLayers().size() - 17 * 0;
+		BASE_LAYERS = worldWindCanvas.getModel().getLayers().size() - 17 * 1;
 		System.out.println(BASE_LAYERS);
 		while(worldWindCanvas.getModel().getLayers().size() > BASE_LAYERS - 1)
 			worldWindCanvas.getModel().getLayers().remove(BASE_LAYERS - 1);
@@ -76,8 +80,18 @@ public class CySatMapTab extends JPanel {
 
 		setLayout(new BorderLayout());
 
-		final JPanel panel = new JPanel();
-		panel.setBackground(Color.BLACK);
+		final JPanel topPanel = new JPanel();
+		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.PAGE_AXIS));
+		topPanel.setBackground(Color.BLACK);
+		
+		final JPanel topPanel1 = new JPanel();
+		topPanel1.setBackground(Color.BLACK);
+		
+		final JPanel topPanel2 = new JPanel();
+		topPanel2.setBackground(Color.BLACK);
+		
+		topPanel.add(topPanel1);
+		topPanel.add(topPanel2);
 
 		final JComboBox<CelestrakSatellite> satChooseBox = new JComboBox<CelestrakSatellite>();
 		for(CelestrakSatellite satellite : SatelliteUtils.getSatellites()){
@@ -91,9 +105,27 @@ public class CySatMapTab extends JPanel {
 		satLabelText.setEditable(false);
 		satLabelText.setFocusable(false);
 
-		final JButton pathButton = new JButton("Get Path");
 
-		final JButton startTracking = new JButton("Begin Tracking");
+		final JButton pathButton = new JButton("Load Path");
+
+		final JButton getPasses = new JButton("Get Passes");
+		getPasses.setEnabled(true);
+		getPasses.setFocusable(false);
+		getPasses.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NextPassesView nextPassesView = gui.getNextPassesPanel().getNextPassesView();
+				nextPassesView.removeAllPasses();
+				CelestrakSatellite sat = (CelestrakSatellite) satChooseBox.getSelectedItem();
+				nextPassesView.showNextPasses(sat.getSatName(), 5);
+				gui.getNextPassesPanel().setSatTitle(sat.getSatName());
+				
+				nextPassesView.refresh();
+				loadSatPath();
+			}
+		});
+		
+		startTracking = new JButton("Begin Tracking");
 		startTracking.setEnabled(false);
 		startTracking.setFocusable(false);
 		startTracking.addActionListener(new ActionListener(){
@@ -109,9 +141,9 @@ public class CySatMapTab extends JPanel {
 				timer.cancel();
 				timer = new Timer();
 
-				panel.remove(status);
-				panel.remove(stop);
-				panel.remove(updateStatus);
+				topPanel2.remove(status);
+				topPanel2.remove(stop);
+				topPanel2.remove(updateStatus);
 				repaint();
 			}
 
@@ -150,14 +182,17 @@ public class CySatMapTab extends JPanel {
 					satChooseBox.setEnabled(false);
 					pathButton.setEnabled(false);
 
-					panel.add(stop);
-					panel.add(status);
-					panel.add(updateStatus);
+					topPanel2.add(stop);
+					topPanel2.add(status);
+					topPanel2.add(updateStatus);
 					repaint();
 
-					cmdSet.base = new Date(new Date().getTime() + 5000);
-					// cmdSet.base = new Date(cmdSet.base.getTime() + 125*1000);
-					System.out.println(new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(cmdSet.base));
+//					System.out.println(new SimpleDateFormat("hh:mm:ss").format(new Date().getTime()));
+//					System.out.println(new SimpleDateFormat("hh:mm:ss").format(cmdSet.base));
+//					System.out.println(new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(cmdSet.base));
+					if (startTrackingImmediately) {
+						cmdSet.base = new Date();
+					}
 					timer.schedule(new TimerTask(){
 						private Iterator<String> iter;
 						private int count = 0;
@@ -196,14 +231,19 @@ public class CySatMapTab extends JPanel {
 								}
 							}
 
-							updateStatus.setText("   Next update in: " + (offset + cmdSet.getTimeStep() - count)
-									+ " seconds");
+							String text = "   Next update in: " + (offset + cmdSet.getTimeStep() - count)
+									+ " seconds";
+							updateStatus.setText(text);
+							CurrentStatePanel.up2.setText(text);
+//							System.out.println(text);
 						}
 
 						private void issueCommand(String cmd){
-							System.out.println(cmd);
-							status.setText("   Az: " + cmd.substring(0, 3) + "; El: " + cmd.substring(4));
-
+							String text = "   Az: " + cmd.substring(0, 3) + "; El: " + cmd.substring(4);
+							status.setText(text);
+							CurrentStatePanel.status2.setText(text);
+							System.out.println(text);
+							
 							try{
 								if(rotator != null)
 									rotator.RotatorSet(Integer.parseInt(cmd.substring(0, 3)),
@@ -221,44 +261,7 @@ public class CySatMapTab extends JPanel {
 		pathButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				try{
-					CelestrakSatellite satellite = (CelestrakSatellite) satChooseBox.getSelectedItem();
-					TLE tle = satellite.getTLE();
-					if(tle == null){
-						JOptionPane.showMessageDialog(null, "Invalid satellite! Unable to show pass data.");
-						return;
-					}
-					
-					gui.getNextPassesPanel().getNextPassesView().removeAll();
-
-					GroundStationPosition ames = new GroundStationPosition(SatelliteUtils.AMES_LATITUDE,
-							SatelliteUtils.AMES_LONGITUDE, SatelliteUtils.AMES_ELEVATION_METERS);
-					PassPredictor pp = new PassPredictor(tle, ames);
-					// SimpleDateFormat sdf = new
-					// SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-					SatPassTime spt = pp.nextSatPass(new Date());
-					System.out.println();
-					System.out.println("For satellite: " + satellite.getSatName() + " @"
-							+ satellite.getInfoPage().getURL());
-					System.out.println();
-					System.out.println(spt);
-
-					while(worldWindCanvas.getModel().getLayers().size() > BASE_LAYERS)
-						worldWindCanvas.getModel().getLayers().remove(BASE_LAYERS);
-
-					worldWindCanvas.setView(new ClippingBasicOrbitView());
-
-					int timeStep = 5;
-					List<AzElPair> list = SatelliteUtils.getPassPathPoints(spt, timeStep);
-					cmdSet = SatelliteUtils.getRotatorCommandSet(list, spt.getStartTime().getTime(), timeStep);
-					addPath(worldWindCanvas, list);
-
-					startTracking.setEnabled(true);
-				} catch(Exception e2){
-					e2.printStackTrace();
-					System.err.println("Unable to track satellite path! Exiting...");
-					System.exit(1);
-				}
+				loadSatPath();
 			}
 		});
 
@@ -271,50 +274,26 @@ public class CySatMapTab extends JPanel {
 			}
 		});
 
-		final JButton connectButton = new JButton("Connect to serial server");
+		connectButton = new JButton("Connect to serial server");
 		connectButton.setFocusable(false);
 		connectButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				String serverIP = JOptionPane.showInputDialog(null, new LabelText("Enter server IP: "),
-						"penthouse.aere.iastate.edu");
-				if(serverIP != null){
-					String portNum = JOptionPane.showInputDialog(null, new LabelText("Enter port number: "), "2809");
-					if(portNum != null && new Scanner(portNum).hasNextInt()){
-						String username = JOptionPane.showInputDialog(null, new LabelText("Enter username: "), "joe");
-						if(username != null){
-							String password = JOptionPane.showInputDialog(null, new LabelText("Enter password: "),
-									"password23");
-							if(password != null){
-								client = new SerialClient(serverIP, Integer.parseInt(portNum), username, password);
-								if(client.getState() == SerialClient.State.ALIVE){
-									rotator = new AntennaRotator(client, 0);
-									JOptionPane.showMessageDialog(null, "Success! Server connection established :D");
-									connectButton.setEnabled(false);
-								} else if(client.getState() == SerialClient.State.DEAD){
-									JOptionPane.showMessageDialog(null, "Unable to connect to " + serverIP + ":"
-											+ portNum);
-								} else if(client.getState() == SerialClient.State.INVALID_PASSWORD){
-									JOptionPane.showMessageDialog(null, "Invalid username or password!");
-								}
-							}
-						}
-					} else if(portNum != null){
-						JOptionPane.showMessageDialog(null, "Invalid port number: " + portNum);
-					}
-				}
+				connectToServer();
 			}
 		});
 
-		panel.add(connectButton);
+		topPanel1.add(connectButton);
 
-		panel.add(satLabelText);
-		panel.add(satChooseBox);
-		panel.add(pathButton);
-		panel.add(startTracking);
+		topPanel1.add(satLabelText);
+		topPanel1.add(satChooseBox);
+		topPanel1.add(getPasses);
+		
+		topPanel2.add(pathButton);
+		topPanel2.add(startTracking);
 
 		add(worldWindCanvas);
-		add(panel, BorderLayout.NORTH);
+		add(topPanel, BorderLayout.NORTH);
 	}
 
 	private void addCompass(WorldWindowGLCanvas worldWindCanvas){
@@ -323,9 +302,11 @@ public class CySatMapTab extends JPanel {
 			positions.add(Position.fromDegrees(0, 0, i));
 		}
 
-		positions.add(Position.fromDegrees(0, -5, 1000000));
-		positions.add(Position.fromDegrees(0, 5, 1000000));
-
+		//Add western hemisphere horizon line
+		for(int i=0; i <= 180; i += 5) {
+			positions.add(Position.fromDegrees(0, i, 1000000));
+		}
+		
 		// create "Polyline" with list of "Position" and set color / thickness
 		Polyline polyline = new Polyline(positions);
 		polyline.setColor(Color.BLUE);
@@ -339,34 +320,118 @@ public class CySatMapTab extends JPanel {
 		worldWindCanvas.getModel().getLayers().add(layer);
 	}
 
-	private void addPath(WorldWindowGLCanvas worldWindCanvas, List<AzElPair> list){
-		LinkedList<Position> positions = new LinkedList<Position>();
-		for(AzElPair latLong : list){
-			positions.add(Position.fromDegrees(latLong.getEl(), -latLong.getAz(), 100000));
+	private void addPath(WorldWindowGLCanvas worldWindCanvas, List<SatPos> list){
+		List<Position> positions = new ArrayList<Position>();
+		List<Position> belowMinElevAsc = new ArrayList<Position>();
+		List<Position> belowMinElevDesc = new ArrayList<Position>();
+		boolean rising = true;
+		for(SatPos satPos : list){
+			if (satPos.getElevation() < SatelliteUtils.MIN_ELEV) {
+				if (rising) {
+					belowMinElevAsc.add(Position.fromDegrees(satPos.getElevation(), -satPos.getAzimuth(), 1000000));
+				} else {
+					belowMinElevDesc.add(Position.fromDegrees(satPos.getElevation(), -satPos.getAzimuth(), 1000000));
+				}
+			} else {
+				rising = false;
+				positions.add(Position.fromDegrees(satPos.getElevation(), -satPos.getAzimuth(), 1000000));
+			}
 		}
-
+		
+		belowMinElevAsc.add(positions.get(0));
+		belowMinElevDesc.add(0, positions.get(positions.size() - 1));
+		
+		//Layer to display the lines
+		RenderableLayer layer = new RenderableLayer();
+		
 		// create "Polyline" with list of "Position" and set color / thickness
 		Polyline polyline = new Polyline(positions.subList(0, positions.size() / 2 + 1));
 		polyline.setColor(Color.RED);
 		polyline.setLineWidth(4.0);
-
-		// create a layer and add Polyline
-		RenderableLayer layer = new RenderableLayer();
 		layer.addRenderable(polyline);
-
-		// add layer to WorldWind
-		worldWindCanvas.getModel().getLayers().add(layer);
 
 		// create "Polyline" with list of "Position" and set color / thickness
 		polyline = new Polyline(positions.subList(positions.size() / 2, positions.size()));
 		polyline.setColor(Color.GREEN);
 		polyline.setLineWidth(4.0);
-
-		// create a layer and add Polyline
-		layer = new RenderableLayer();
+		layer.addRenderable(polyline);
+		
+		// line for the ascending invisible areas
+		polyline = new Polyline(belowMinElevAsc);
+		polyline.setColor(new Color(25, 25, 25));
+		polyline.setLineWidth(4.0);
+		layer.addRenderable(polyline);
+		
+		// line for the descending invisible areas
+		polyline = new Polyline(belowMinElevDesc);
+		polyline.setColor(new Color(25, 25, 25));
+		polyline.setLineWidth(4.0);
 		layer.addRenderable(polyline);
 
 		// add layer to WorldWind
 		worldWindCanvas.getModel().getLayers().add(layer);
+	}
+	
+	private void loadSatPath() {
+		try{
+			SatellitePass satPass = gui.getNextPassesPanel().getNextPassesView().getSelectedPass();
+			if (satPass != null) {
+				CelestrakSatellite satellite = satPass.getSatellite();
+				SatPassTime spt = satPass.getSatPassTime();
+				
+				System.out.println();
+				System.out.println("For satellite: " + satellite.getSatName() + " @"
+						+ satellite.getInfoPage().getURL());
+				System.out.println();
+				System.out.println(spt);
+
+				while(worldWindCanvas.getModel().getLayers().size() > BASE_LAYERS)
+					worldWindCanvas.getModel().getLayers().remove(BASE_LAYERS);
+
+				worldWindCanvas.setView(new ClippingBasicOrbitView());
+
+				List<SatPos> passPoints = satPass.getPassPoints(SatelliteUtils.MIN_ELEV);
+				cmdSet = SatelliteUtils.getRotatorCommandSet(passPoints, passPoints.get(0).getTime().getTime(), timeStep);
+				addPath(worldWindCanvas, satPass.getPassPoints());
+
+				startTracking.setEnabled(true);
+			} else {
+				JOptionPane.showMessageDialog(null, "No pass is currently selected!");
+			}
+		} catch(Exception e2){
+			e2.printStackTrace();
+			System.err.println("Unable to track satellite path! Exiting...");
+			System.exit(1);
+		}
+	}
+	
+	private void connectToServer() {
+		String serverIP = JOptionPane.showInputDialog(null, new LabelText("Enter server IP: "),
+				"penthouse.aere.iastate.edu");
+		if(serverIP != null){
+			String portNum = JOptionPane.showInputDialog(null, new LabelText("Enter port number: "), "2809");
+			if(portNum != null && new Scanner(portNum).hasNextInt()){
+				String username = JOptionPane.showInputDialog(null, new LabelText("Enter username: "), "joe");
+				if(username != null){
+					String password = JOptionPane.showInputDialog(null, new LabelText("Enter password: "),
+							"password23");
+					if(password != null){
+						client = new SerialClient(serverIP, Integer.parseInt(portNum), username, password);
+						if(client.getState() == SerialClient.State.ALIVE){
+							rotator = new AntennaRotator(client, 0);
+							JOptionPane.showMessageDialog(null, "Success! Server connection established :D");
+							connectButton.setEnabled(false);
+						} else if(client.getState() == SerialClient.State.DEAD){
+							JOptionPane.showMessageDialog(null, "Unable to connect to " + serverIP + ":"
+									+ portNum);
+						} else if(client.getState() == SerialClient.State.INVALID_PASSWORD){
+							JOptionPane.showMessageDialog(null, "Invalid username or password!");
+						}
+					}
+				}
+			} else if(portNum != null){
+				JOptionPane.showMessageDialog(null, "Invalid port number: " + portNum);
+			}
+		}
 	}
 }

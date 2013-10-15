@@ -38,8 +38,8 @@ public class CySatGUI {
 	private final String WINDOW_TITLE = "CySat Base Station GUI";
 	private final String APPLICATION_ICON_FILE = "app-icon.png";
 	private final String APPLICATION_ICON_LARGE_FILE = "app-icon-large.png";
-	private final int INITIAL_FRAME_WIDTH = 800;
-	private final int INITIAL_FRAME_HEIGHT = 600;
+	private final int INITIAL_FRAME_WIDTH = 1100;
+	private final int INITIAL_FRAME_HEIGHT = 650;
 	private final int MINIMUM_FRAME_WIDTH = 640;
 	private final int MINIMUM_FRAME_HEIGHT = 480;
 
