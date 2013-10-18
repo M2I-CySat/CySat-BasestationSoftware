@@ -7,9 +7,7 @@ import java.util.regex.Pattern;
 import serial.client.SerialClient;
 
 /**
- * An API for the Antenna Rotator. We are using the <a
- * href="http://polysat.calpoly.edu/earthstation/documents/gs-232a.pdf"> Yaesu
- * GS-232A </a>.
+ * An API for the Antenna Rotator. We are using the Yaesu GS-232A
  * 
  * @author Adam Campbell
  */

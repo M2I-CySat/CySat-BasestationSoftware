@@ -137,6 +137,7 @@ public class CySatMapTab extends JPanel {
 				startTracking.setEnabled(true);
 				satChooseBox.setEnabled(true);
 				pathButton.setEnabled(true);
+				getPasses.setEnabled(true);
 
 				timer.cancel();
 				timer = new Timer();
@@ -181,6 +182,8 @@ public class CySatMapTab extends JPanel {
 					startTracking.setEnabled(false);
 					satChooseBox.setEnabled(false);
 					pathButton.setEnabled(false);
+					getPasses.setEnabled(false);
+
 
 					topPanel2.add(stop);
 					topPanel2.add(status);
