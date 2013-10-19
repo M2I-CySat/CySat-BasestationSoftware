@@ -214,7 +214,7 @@ public class SerialUtils {
 		try{
 			out = new BufferedWriter(new FileWriter(new File(logBaseString + logTimeStamp + ".txt"), true));
 			if(data.length() > 0){
-				out.write(data.trim() + "\n");
+				out.write(data.trim() + "\r\n");
 			}
 			out.close();
 		} catch(Exception e){
