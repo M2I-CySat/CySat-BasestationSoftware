@@ -19,6 +19,7 @@ public class CySatDataTab extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e){
 				gui.getNextPassesPanel().getNextPassesView().removePass(0);
+				gui.getNextPassesPanel().getNextPassesView().refresh();
 				gui.getFrame().repaint();
 			}
 		});

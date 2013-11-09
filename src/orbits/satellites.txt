@@ -1,3 +1,19 @@
+# A listing of all the satellites to be indexed by the application
+#
+# FORMAT:
+# <TLE Page URL 1>
+# <satellite 1>
+# <satellite 2>
+# ...
+#
+# <TLE Page URL 2>
+# <satellite 1>
+# <satellite 2>
+# ...
+#
+# ...
+
+
 http://www.celestrak.com/NORAD/elements/stations.txt
 ISS (ZARYA)             
 TIANGONG 1

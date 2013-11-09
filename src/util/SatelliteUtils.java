@@ -86,7 +86,7 @@ public class SatelliteUtils {
 	
 	public static void init() throws FileNotFoundException, MalformedURLException, URISyntaxException{
 		if(!initialized)
-			getCelestrakSatellites();
+			loadCelestrakSatellites();
 		initialized = true;
 	}
 	
@@ -104,7 +104,7 @@ public class SatelliteUtils {
 		return null;
 	}
 	
-	private static void getCelestrakSatellites() throws FileNotFoundException, MalformedURLException, URISyntaxException{
+	private static void loadCelestrakSatellites() throws FileNotFoundException, MalformedURLException, URISyntaxException{
 		satellites = new ArrayList<CelestrakSatellite>();
 		InputStream is = Class.class.getResourceAsStream(satInfoFile);
 		if(is == null){
@@ -114,7 +114,12 @@ public class SatelliteUtils {
 		
 		Scanner s = new Scanner(is);
 		while(s.hasNextLine()){
-			String infoPageURL = s.nextLine().trim();
+			String line = s.nextLine();
+			if(line.startsWith("#") || line.trim().isEmpty()) {
+				continue;
+			}
+			
+			String infoPageURL = line.trim();
 			TLEInfoPage infoPage = new TLEInfoPage(infoPageURL);
 			while(s.hasNextLine()){
 				String satName = s.nextLine().trim();
