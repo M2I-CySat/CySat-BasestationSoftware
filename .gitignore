@@ -1,9 +1,11 @@
+#Build junk
 *.class
+bin/
 
-# Package Files #
+# Build artifact package files #
 *.jar
 *.war
 *.ear
 
-# (But remember to include lib package files)
+# (But remember to include needed lib package files)
 !lib/**/*
