@@ -1,7 +1,7 @@
 package util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class SatelliteUtils {
 	public static final double MIN_ELEV = 10.0; //Minimum elevation in degrees to consider a satellite pass
 	
 	private static ArrayList<CelestrakSatellite> satellites;
-	private static String satInfoFile = "/orbits/satellites.txt";
+	private static String satInfoFile = "res/satellites.txt";
 	
 	private static boolean initialized = false;
 	
@@ -106,23 +106,23 @@ public class SatelliteUtils {
 	
 	private static void loadCelestrakSatellites() throws FileNotFoundException, MalformedURLException, URISyntaxException{
 		satellites = new ArrayList<CelestrakSatellite>();
-		InputStream is = Class.class.getResourceAsStream(satInfoFile);
-		if(is == null){
+		File infoFile = new File(satInfoFile);
+		if(!infoFile.exists()){
 			System.err.println("Can't find file: " + satInfoFile);
 			throw new FileNotFoundException();
 		}
 		
-		Scanner s = new Scanner(is);
-		while(s.hasNextLine()){
-			String line = s.nextLine();
+		Scanner in = new Scanner(infoFile);
+		while(in.hasNextLine()){
+			String line = in.nextLine();
 			if(line.startsWith("#") || line.trim().isEmpty()) {
 				continue;
 			}
 			
 			String infoPageURL = line.trim();
 			TLEInfoPage infoPage = new TLEInfoPage(infoPageURL);
-			while(s.hasNextLine()){
-				String satName = s.nextLine().trim();
+			while(in.hasNextLine()){
+				String satName = in.nextLine().trim();
 				if(satName.isEmpty())
 					break;
 
@@ -131,7 +131,7 @@ public class SatelliteUtils {
 			}
 		}
 		
-		s.close();
+		in.close();
 	}
 	
 	public static List<SatellitePass> getNextSatellitePasses(String satName, int timeStep, int nTimes, double minElev) {
