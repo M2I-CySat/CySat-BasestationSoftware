@@ -9,17 +9,17 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-public class WorldWindTest2 {
+public class WorldWindEarthDemo {
 	private static final int FRAME_WIDTH = 1024;
 	private static final int FRAME_HEIGHT = 600;
 	
 	private JFrame frame;
 	
 	public static void main(String[] args){
-		new WorldWindTest();
+		new WorldWindEarthDemo();
 	}
 	
-	public WorldWindTest2(){
+	public WorldWindEarthDemo(){
 		SwingUtilities.invokeLater(new Runnable(){
 			@Override
 			public void run(){

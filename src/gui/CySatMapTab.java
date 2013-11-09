@@ -249,7 +249,7 @@ public class CySatMapTab extends JPanel {
 							
 							try{
 								if(rotator != null)
-									rotator.RotatorSet(Integer.parseInt(cmd.substring(0, 3)),
+									rotator.rotateTo(Integer.parseInt(cmd.substring(0, 3)),
 											Integer.parseInt(cmd.substring(4)));
 							} catch(NumberFormatException | IOException e){
 								e.printStackTrace();

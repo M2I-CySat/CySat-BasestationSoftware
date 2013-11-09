@@ -66,7 +66,7 @@ public class AntennaRotator {
 	 * @throws IOException
 	 *             In the event of a read/write error
 	 */
-	public void RotatorSet(int azimuth, int elevation) throws IOException{
+	public void rotateTo(int azimuth, int elevation) throws IOException{
 		if(azimuth < 0 || azimuth > 360){
 			throw new IllegalArgumentException("Invalid Azimuth value!");
 		} else if(elevation < 0 || elevation > 180){
@@ -88,7 +88,7 @@ public class AntennaRotator {
 	 * @throws IOException
 	 *             In the event of a read/write error
 	 */
-	public void RotatorSet(int azimuth) throws IOException{
+	public void rotateToAzimuth(int azimuth) throws IOException{
 		if(azimuth < 0 || azimuth > 360){
 			throw new IllegalArgumentException("Invalid Azimuth value!");
 		}
@@ -106,7 +106,7 @@ public class AntennaRotator {
 	 * 
 	 * @return The azimuth value recorded during the last call to pollServer()
 	 */
-	public int RotatorGetAz(){
+	public int getCurrentAzimuth(){
 		if(azimuth < 0){
 			throw new IllegalStateException("You must poll the server before getting the azimuth!");
 		}
@@ -123,7 +123,7 @@ public class AntennaRotator {
 	 * 
 	 * @return The elevation value recorded during the last call to pollServer()
 	 */
-	public int RotatorGetEl(){
+	public int getCurrentElevation(){
 		if(elevation < 0){
 			throw new IllegalStateException("You must poll the server before getting the elevation!");
 		}
@@ -175,12 +175,15 @@ public class AntennaRotator {
 	
 	public static void main(String[] args) {
 		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23"); 
-		AntennaRotator r = new AntennaRotator(client, 0);
-		try { 
-			r.pollServer();
-			System.out.println("Az: " + r.RotatorGetAz() + ", El: " + r.RotatorGetEl());
-		} catch (Exception e) {
-			e.printStackTrace();
+		if(client.getState() == SerialClient.State.ALIVE) {
+			AntennaRotator r = new AntennaRotator(client, 0);
+			try { 
+				r.pollServer();
+				System.out.println("Az: " + r.getCurrentAzimuth() + ", El: "
+						+ r.getCurrentElevation());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		System.exit(0);
 	}

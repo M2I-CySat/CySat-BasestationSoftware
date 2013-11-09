@@ -99,22 +99,22 @@ public class SerialClient {
 				state = State.ALIVE;
 			} else{
 				state = State.INVALID_PASSWORD;
-				System.err.println("Invalid username and password. Exiting...");
+				System.err.println("Invalid username and password. Client dying...");
 				die();
 			}
 		} catch(ConnectException e){
-			System.err.println("Unable to connect to " + host + ":" + portNum + ". Exiting...");
+			System.err.println("Unable to connect to " + host + ":" + portNum + ". Client dying...");
 			die();
 		} catch(SocketException e){
 			System.err.println();
-			System.err.println("Server Connection Reset. Exiting...");
+			System.err.println("Server Connection Reset. Client dying...");
 			die();
 		} catch(SocketTimeoutException e){
-			System.err.println("Unable to connect to " + host + ":" + portNum + ". Exiting...");
+			System.err.println("Unable to connect to " + host + ":" + portNum + ". Client dying...");
 			die();
 		} catch(Exception e){
 			e.printStackTrace();
-			System.err.println("Serial Client Error. Exiting...");
+			System.err.println("Serial Client Error. Client dying...");
 			die();
 		}
 	}
@@ -261,7 +261,7 @@ public class SerialClient {
 							}
 						}
 					} catch(SocketException e){
-						System.err.println("Server connection reset. Reconnect needed. Exiting...");
+						System.err.println("Server connection reset. Reconnect needed. Client dying...");
 						die();
 					} catch(IOException e){
 						System.err.println("Error when reading from server.");
