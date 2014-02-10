@@ -7,13 +7,16 @@ import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -406,10 +409,20 @@ public class SerialServer {
 	 * @throws IOException
 	 *             If something goes wrong
 	 */
-	private void startServer(int portNum) throws IOException{
+	private void startServer(int portNum) throws IOException {
 		server = new ServerSocket(portNum);
 		System.out.println();
-		System.out.println("Serial Server started on IP: " + server.getLocalSocketAddress());
+		System.out.print("Serial Server started");
+		
+		try {
+			//Try to get our IP address from Amazon AWS
+			URL aws = new URL("http://checkip.amazonaws.com");
+			BufferedReader in = new BufferedReader(new InputStreamReader(aws.openStream()));
+			String ip = in.readLine();
+			System.out.println(" on IP: " + ip + ":" + portNum);
+		} catch(IOException e) {
+			System.out.println(" on port " + portNum);
+		}
 	}
 
 	/**
