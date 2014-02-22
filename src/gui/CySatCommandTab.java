@@ -10,19 +10,20 @@ import javax.swing.JTextArea;
 
 public class CySatCommandTab extends JPanel {
 	private static final long serialVersionUID = 0L;
-//	private CySatGUI gui;
-	
+
+	// private CySatGUI gui;
+
 	public CySatCommandTab(CySatGUI gui) {
-//		this.gui = gui;
-		
+		// this.gui = gui;
+
 		initComponents();
 	}
-	
+
 	private void initComponents() {
 		JButton hello = new JButton("Send 'Hello'");
 		hello.setFocusable(false);
 		add(hello);
-		
+
 		final JTextArea response = new JTextArea(5, 30);
 		response.setText("Testing...\n");
 		hello.addActionListener(new ActionListener() {

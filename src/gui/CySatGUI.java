@@ -20,13 +20,13 @@ import util.SatelliteUtils;
 
 public class CySatGUI {
 	static {
-		//Disable the generation of light-weight popups so that they don't 
-		//get hidden behind the WorldWindowGLCanvas
+		// Disable the generation of light-weight popups so that they don't
+		// get hidden behind the WorldWindowGLCanvas
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 	}
-	
-	public static void main(String[] args){
+
+	public static void main(String[] args) {
 		new CySatGUI().start();
 	}
 
@@ -44,59 +44,58 @@ public class CySatGUI {
 	private final int MINIMUM_FRAME_HEIGHT = 480;
 
 	private String operatingSystem;
-	
+
 	private CySatGUI() {
 
 	}
 
-	private void start(){
-		SwingUtilities.invokeLater(new Runnable(){
+	private void start() {
+		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run(){
+			public void run() {
 				createAndShowGUI();
 			}
 		});
 	}
 
-	private void createAndShowGUI(){
-		try{
+	private void createAndShowGUI() {
+		try {
 			SatelliteUtils.init();
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Unable to load satellites information! Exiting...");
 			System.exit(1);
 		}
-		
+
 		operatingSystem = System.getProperty("os.name").toLowerCase();
-		
+
 		frame = new JFrame(WINDOW_TITLE);
 		frame.setSize(INITIAL_FRAME_WIDTH, INITIAL_FRAME_HEIGHT);
 		frame.setMinimumSize(new Dimension(MINIMUM_FRAME_WIDTH, MINIMUM_FRAME_HEIGHT));
 		Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setLocation((int) (scrSize.getWidth() - frame.getWidth()) / 2,
-				(int) (scrSize.getHeight() - frame.getHeight()) / 2);
+		frame.setLocation((int) (scrSize.getWidth() - frame.getWidth()) / 2, (int) (scrSize.getHeight() - frame.getHeight()) / 2);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		initializePanels();
 		addComponentsToPane(frame.getContentPane());
 
 		String appIconFile = "";
-		if(operatingSystem.contains("linux")){
+		if (operatingSystem.contains("linux")) {
 			appIconFile = APPLICATION_ICON_LARGE_FILE;
-		} else{
+		} else {
 			appIconFile = APPLICATION_ICON_FILE;
 		}
-		
-		try{
+
+		try {
 			frame.setIconImage(ImageIO.read(new File(appIconFile)));
-		} catch(IOException e){
+		} catch (IOException e) {
 			System.err.println("Unable to find application image icon <" + appIconFile + ">! Using Java default.");
 		}
 
 		frame.setVisible(true);
 	}
 
-	private void initializePanels(){
+	private void initializePanels() {
 		nextPassesPanel = new NextPassesPanel();
 		nextPassesPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		nextPassesPanel.setMinimumSize(new Dimension(350, 100));
@@ -111,9 +110,9 @@ public class CySatGUI {
 		cySatMainPanel.setPreferredSize(new Dimension(0, 400));
 	}
 
-	private void addComponentsToPane(Container pane){
+	private void addComponentsToPane(Container pane) {
 		pane.setLayout(new BorderLayout());
-		
+
 		JSplitPane horzSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, nextPassesPanel, cySatMainPanel);
 		horzSplitPane.setMinimumSize(new Dimension(0, 200));
 		horzSplitPane.setResizeWeight(0);
@@ -123,20 +122,20 @@ public class CySatGUI {
 		vertSplitPane.setResizeWeight(1);
 		pane.add(vertSplitPane, BorderLayout.CENTER);
 	}
-	
-	public NextPassesPanel getNextPassesPanel(){
+
+	public NextPassesPanel getNextPassesPanel() {
 		return nextPassesPanel;
 	}
-	
-	public CySatMainPanel getMainPanel(){
+
+	public CySatMainPanel getMainPanel() {
 		return cySatMainPanel;
 	}
-	
-	public CurrentStatePanel getCurrentStatePanel(){
+
+	public CurrentStatePanel getCurrentStatePanel() {
 		return currentStatePanel;
 	}
-	
-	public JFrame getFrame(){
+
+	public JFrame getFrame() {
 		return frame;
 	}
 }

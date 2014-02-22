@@ -17,7 +17,7 @@ public class AntennaRotator {
 	 * The SerialClient used to talk to the rotator via the serial port
 	 */
 	private SerialClient client;
-	
+
 	/**
 	 * The timeout time in milliseconds for rotator communication
 	 */
@@ -34,8 +34,7 @@ public class AntennaRotator {
 	private int elevation = -1;
 
 	/**
-	 * The serial port number where the rotator is connected to the server
-	 * computer
+	 * The serial port number where the rotator is connected to the server computer
 	 */
 	private int serialPortNum;
 
@@ -43,14 +42,12 @@ public class AntennaRotator {
 	 * Construct a new antenna rotator to talk to the given client
 	 * 
 	 * @param client
-	 *            The SerialClient used to talk to the rotator via the serial
-	 *            port
+	 *            The SerialClient used to talk to the rotator via the serial port
 	 * @param serialPortNum
-	 *            The serial port number where the rotator is connected to the
-	 *            serial server computer
+	 *            The serial port number where the rotator is connected to the serial server computer
 	 */
 	public AntennaRotator(SerialClient client, int serialPortNum) {
-		if(serialPortNum < 0 || serialPortNum > 9){
+		if (serialPortNum < 0 || serialPortNum > 9) {
 			throw new IllegalArgumentException("Invalid serial port number: " + serialPortNum);
 		}
 
@@ -72,10 +69,10 @@ public class AntennaRotator {
 	 * @throws IOException
 	 *             In the event of a read/write error
 	 */
-	public void rotateTo(int azimuth, int elevation) throws IOException{
-		if(azimuth < 0 || azimuth > 360){
+	public void rotateTo(int azimuth, int elevation) throws IOException {
+		if (azimuth < 0 || azimuth > 360) {
 			throw new IllegalArgumentException("Invalid Azimuth value!");
-		} else if(elevation < 0 || elevation > 180){
+		} else if (elevation < 0 || elevation > 180) {
 			throw new IllegalArgumentException("Invalid Elevation value!");
 		}
 
@@ -94,8 +91,8 @@ public class AntennaRotator {
 	 * @throws IOException
 	 *             In the event of a read/write error
 	 */
-	public void rotateToAzimuth(int azimuth) throws IOException{
-		if(azimuth < 0 || azimuth > 360){
+	public void rotateToAzimuth(int azimuth) throws IOException {
+		if (azimuth < 0 || azimuth > 360) {
 			throw new IllegalArgumentException("Invalid Azimuth value!");
 		}
 
@@ -104,16 +101,14 @@ public class AntennaRotator {
 	}
 
 	/**
-	 * Gets the current azimuth value for the antenna rotator. This method
-	 * <i>does not poll the server</i> for an up to date azimuth value, but
-	 * merely returns the value that was stored during the last server poll.
-	 * Because of this, you must call pollServer() if you wish to get an up to
-	 * date azimuth value.
+	 * Gets the current azimuth value for the antenna rotator. This method <i>does not poll the server</i> for an up to date azimuth value,
+	 * but merely returns the value that was stored during the last server poll. Because of this, you must call pollServer() if you wish to
+	 * get an up to date azimuth value.
 	 * 
 	 * @return The azimuth value recorded during the last call to pollServer()
 	 */
-	public int getCurrentAzimuth(){
-		if(azimuth < 0){
+	public int getCurrentAzimuth() {
+		if (azimuth < 0) {
 			throw new IllegalStateException("You must poll the server before getting the azimuth!");
 		}
 
@@ -121,16 +116,14 @@ public class AntennaRotator {
 	}
 
 	/**
-	 * Gets the current elevation value for the antenna rotator. This method
-	 * <i>does not poll the server</i> for an up to date elevation value, but
-	 * merely returns the value that was stored during the last server poll.
-	 * Because of this, you must call pollServer() if you wish to get an up to
-	 * date elevation value.
+	 * Gets the current elevation value for the antenna rotator. This method <i>does not poll the server</i> for an up to date elevation
+	 * value, but merely returns the value that was stored during the last server poll. Because of this, you must call pollServer() if you
+	 * wish to get an up to date elevation value.
 	 * 
 	 * @return The elevation value recorded during the last call to pollServer()
 	 */
-	public int getCurrentElevation(){
-		if(elevation < 0){
+	public int getCurrentElevation() {
+		if (elevation < 0) {
 			throw new IllegalStateException("You must poll the server before getting the elevation!");
 		}
 
@@ -138,14 +131,13 @@ public class AntennaRotator {
 	}
 
 	/**
-	 * Poll the server to update the azimuth and elevation values. This will
-	 * send a "C2" command to the antenna rotator, and the response will be
-	 * parsed to obtain the azimuth and elevation values.
+	 * Poll the server to update the azimuth and elevation values. This will send a "C2" command to the antenna rotator, and the response
+	 * will be parsed to obtain the azimuth and elevation values.
 	 * 
 	 * @throws IOException
 	 *             In the event of a read/write error
 	 */
-	public void pollServer() throws IOException{
+	public void pollServer() throws IOException {
 		final StringBuffer data = new StringBuffer();
 		SerialDataListener serialListener = new SerialDataListener() {
 			@Override
@@ -154,39 +146,39 @@ public class AntennaRotator {
 			}
 		};
 		client.addListener(serialListener);
-		
+
 		// Send the C2 command
 		String cmd = String.format("%dC2\\r\n", serialPortNum, azimuth, elevation);
 		client.write(cmd);
 
 		long startTime = System.currentTimeMillis();
 		// Get the response and parse it
-		while (data.toString().isEmpty() && System.currentTimeMillis() - startTime < TIMEOUT_TIME){
+		while (data.toString().isEmpty() && System.currentTimeMillis() - startTime < TIMEOUT_TIME) {
 			// Wait a little bit
-			try{
+			try {
 				Thread.sleep(50);
-			} catch(InterruptedException e){
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		client.removeListener(serialListener);
-		
-		if(!data.toString().isEmpty()) {
-			Scanner dataScanner = new Scanner(data.toString() );
+
+		if (!data.toString().isEmpty()) {
+			Scanner dataScanner = new Scanner(data.toString());
 
 			// The data comes in as "+AAA+EEE"
 			Pattern dataPattern = Pattern.compile("\\+([0-9]{4})\\+([0-9]{4})");
-			if(dataScanner.hasNext(dataPattern)){
-				try{
+			if (dataScanner.hasNext(dataPattern)) {
+				try {
 					azimuth = Integer.parseInt(dataScanner.match().group(1));
 					elevation = Integer.parseInt(dataScanner.match().group(2));
-				} catch(Exception e){
+				} catch (Exception e) {
 					// If we did something wrong with the pattern
 					azimuth = -1;
 					elevation = -1;
 				}
-			} else{
+			} else {
 				// If the response is malformed
 				azimuth = -1;
 				elevation = -1;
@@ -198,15 +190,14 @@ public class AntennaRotator {
 			elevation = -1;
 		}
 	}
-	
+
 	public static void main(String[] args) {
-		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23"); 
-		if(client.getState() == SerialClient.State.ALIVE) {
+		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23");
+		if (client.getState() == SerialClient.State.ALIVE) {
 			AntennaRotator r = new AntennaRotator(client, 0);
-			try { 
+			try {
 				r.pollServer();
-				System.out.println("Az: " + r.getCurrentAzimuth() + ", El: "
-						+ r.getCurrentElevation());
+				System.out.println("Az: " + r.getCurrentAzimuth() + ", El: " + r.getCurrentElevation());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

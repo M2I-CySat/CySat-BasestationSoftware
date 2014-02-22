@@ -13,44 +13,44 @@ public class SatellitePass {
 	private int timeStep;
 	private GroundStationPosition groundStation;
 	private SatPassTime spt;
-	
-	public SatellitePass(){
-		
+
+	public SatellitePass() {
+
 	}
-	
-	public SatellitePass(CelestrakSatellite satellite, List<SatPos> passPoints, boolean inRad, 
-				int timeStep, GroundStationPosition groundStation, SatPassTime spt){
+
+	public SatellitePass(CelestrakSatellite satellite, List<SatPos> passPoints, boolean inRad, int timeStep,
+			GroundStationPosition groundStation, SatPassTime spt) {
 		this.satellite = satellite;
 		this.timeStep = timeStep;
 		this.groundStation = groundStation;
 		this.spt = spt;
-		
+
 		if (inRad) {
 			radToDegrees(passPoints);
 		}
 		this.passPoints = passPoints;
 	}
 
-	public SatPassTime getSatPassTime(){
+	public SatPassTime getSatPassTime() {
 		return spt;
 	}
 
-	public void setSatPassTime(SatPassTime spt){
+	public void setSatPassTime(SatPassTime spt) {
 		this.spt = spt;
 	}
 
-	public CelestrakSatellite getSatellite(){
+	public CelestrakSatellite getSatellite() {
 		return satellite;
 	}
-	
-	public void setSatellite(CelestrakSatellite satellite){
+
+	public void setSatellite(CelestrakSatellite satellite) {
 		this.satellite = satellite;
 	}
 
-	public List<SatPos> getPassPoints(){
+	public List<SatPos> getPassPoints() {
 		return passPoints;
 	}
-	
+
 	public List<SatPos> getPassPoints(double minElev) {
 		List<SatPos> ret = new ArrayList<>();
 		for (SatPos sp : passPoints) {
@@ -58,43 +58,43 @@ public class SatellitePass {
 				ret.add(sp);
 			}
 		}
-		
+
 		return ret;
 	}
 
-	public void setPassPoints(List<SatPos> passPoints, boolean inRad){
+	public void setPassPoints(List<SatPos> passPoints, boolean inRad) {
 		if (inRad) {
 			radToDegrees(passPoints);
 		}
 		this.passPoints = passPoints;
 	}
 
-	public long getBaseTime(){
+	public long getBaseTime() {
 		return spt.getStartTime().getTime();
 	}
 
-	public void setBaseTime(long baseTime){
+	public void setBaseTime(long baseTime) {
 		spt.getStartTime().setTime(baseTime);
 	}
 
-	public int getTimeStep(){
+	public int getTimeStep() {
 		return timeStep;
 	}
 
-	public void setTimeStep(int timeStep){
+	public void setTimeStep(int timeStep) {
 		this.timeStep = timeStep;
 	}
 
-	public GroundStationPosition getGroundStation(){
+	public GroundStationPosition getGroundStation() {
 		return groundStation;
 	}
 
-	public void setGroundStation(GroundStationPosition groundStation){
+	public void setGroundStation(GroundStationPosition groundStation) {
 		this.groundStation = groundStation;
 	}
-	
+
 	private static void radToDegrees(List<SatPos> list) {
-		for(int i=0; i < list.size(); i++) {
+		for (int i = 0; i < list.size(); i++) {
 			list.get(i).setElevation(Math.toDegrees(list.get(i).getElevation()));
 			list.get(i).setAzimuth(Math.toDegrees(list.get(i).getAzimuth()));
 		}

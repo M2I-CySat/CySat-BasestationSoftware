@@ -17,58 +17,58 @@ import uk.me.g4dpz.satellite.TLE;
 
 public class TLEInfoPage {
 	private URL url;
-	
-	public TLEInfoPage(String url) throws MalformedURLException{
+
+	public TLEInfoPage(String url) throws MalformedURLException {
 		this.url = new URL(url);
 	}
-	
-	public String getURL(){
+
+	public String getURL() {
 		return url.toString();
 	}
 
-	public TLE getTLEForSatellite(String satName){
-		try{
+	public TLE getTLEForSatellite(String satName) {
+		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 			String line = null;
-			while((line = br.readLine().trim()) != null){
-				if(line.equals(satName.trim())){
+			while ((line = br.readLine().trim()) != null) {
+				if (line.equals(satName.trim())) {
 					String tleLine1 = br.readLine();
 					String tleLine2 = br.readLine();
-					
-					return new TLE(new String[]{line, tleLine1, tleLine2});
+
+					return new TLE(new String[] { line, tleLine1, tleLine2 });
 				}
 			}
-		} catch(Exception e){
+		} catch (Exception e) {
 			return null;
-		} 
-		
+		}
+
 		return null;
 	}
-	
-	public List<SatInfo> getAllNextPasses(GroundStationPosition gsp){
+
+	public List<SatInfo> getAllNextPasses(GroundStationPosition gsp) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		ArrayList<SatInfo> sptList = new ArrayList<SatInfo>();
-		
-		try{
+
+		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 			String line = null;
-			while((line = br.readLine()) != null){
+			while ((line = br.readLine()) != null) {
 				line = line.trim();
 				String tleLine1 = br.readLine();
 				String tleLine2 = br.readLine();
-				
-				TLE tle = new TLE(new String[]{line, tleLine1, tleLine2});
+
+				TLE tle = new TLE(new String[] { line, tleLine1, tleLine2 });
 				PassPredictor pp = new PassPredictor(tle, gsp);
 				SatPassTime spt = pp.nextSatPass(new Date());
-		
+
 				sptList.add(new SatInfo(line, spt));
 			}
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-			
+
 		return sptList;
 	}
 }

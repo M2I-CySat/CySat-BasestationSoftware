@@ -24,16 +24,14 @@ import java.util.Scanner;
 import java.util.TooManyListenersException;
 
 /**
- * The server that listens to the serial port and echoes the serial data back to
- * the clients, as well as listen for data from the clients and send it to the
- * serial ports.
+ * The server that listens to the serial port and echoes the serial data back to the clients, as well as listen for data from the clients
+ * and send it to the serial ports.
  * 
  * @author Adam Campbell
  */
 public class SerialServer {
 	/**
-	 * A class to hold an allowed user to the server. It has a username and
-	 * password.
+	 * A class to hold an allowed user to the server. It has a username and password.
 	 */
 	public static class AllowedUser {
 		private String username;
@@ -44,24 +42,23 @@ public class SerialServer {
 			this.password = password;
 		}
 
-		public String getUsername(){
+		public String getUsername() {
 			return username;
 		}
 
-		public String getPassword(){
+		public String getPassword() {
 			return password;
 		}
 
 		@Override
-		public boolean equals(Object o){
-			if(this == o)
+		public boolean equals(Object o) {
+			if (this == o)
 				return true;
-			if(o == null || o.getClass() != this.getClass())
+			if (o == null || o.getClass() != this.getClass())
 				return false;
 
 			AllowedUser au = (AllowedUser) o;
-			return au.username != null && au.username.equals(username) && 
-					au.password != null && au.password.equals(password);
+			return au.username != null && au.username.equals(username) && au.password != null && au.password.equals(password);
 		}
 	}
 
@@ -77,11 +74,11 @@ public class SerialServer {
 			this.clientNum = clientNum;
 		}
 
-		public int getClientNum(){
+		public int getClientNum() {
 			return clientNum;
 		}
 
-		public Socket getClient(){
+		public Socket getClient() {
 			return client;
 		}
 	}
@@ -156,9 +153,8 @@ public class SerialServer {
 	}
 
 	/**
-	 * Set the white list information for the server. The white list contains a
-	 * list of valid usernames and passwords with which each client shall
-	 * "login" to the server. <br/>
+	 * Set the white list information for the server. The white list contains a list of valid usernames and passwords with which each client
+	 * shall "login" to the server. <br/>
 	 * <br/>
 	 * The white list file itself is a text file in CSV format like so: <br/>
 	 * <i> username1,password1 <br/>
@@ -171,15 +167,15 @@ public class SerialServer {
 	 */
 	public void setWhiteList(String whiteListFileName) throws FileNotFoundException {
 		List<AllowedUser> newWhiteList = new ArrayList<>();
-		
+
 		// Read the usernames and passwords and fill the list with AllowedUsers
 		Scanner whiteListReader = new Scanner(new File(whiteListFileName));
-		while(whiteListReader.hasNextLine()){
+		while (whiteListReader.hasNextLine()) {
 			Scanner lineScanner = new Scanner(whiteListReader.nextLine());
 			lineScanner.useDelimiter(",");
-			if(lineScanner.hasNext()){
+			if (lineScanner.hasNext()) {
 				String username = lineScanner.next();
-				if(lineScanner.hasNext()){
+				if (lineScanner.hasNext()) {
 					String password = lineScanner.next();
 					newWhiteList.add(new AllowedUser(username.trim(), password.trim()));
 				}
@@ -187,19 +183,18 @@ public class SerialServer {
 			lineScanner.close();
 		}
 		whiteListReader.close();
-			
-		//Update the whitelist
+
+		// Update the whitelist
 		whiteList.clear();
 		whiteList.addAll(newWhiteList);
 	}
 
 	/**
-	 * Get the white list of AllowedUsers who are permitted to login to this
-	 * server
+	 * Get the white list of AllowedUsers who are permitted to login to this server
 	 * 
 	 * @return
 	 */
-	public ArrayList<AllowedUser> getWhiteList(){
+	public ArrayList<AllowedUser> getWhiteList() {
 		return whiteList;
 	}
 
@@ -213,21 +208,21 @@ public class SerialServer {
 	 * @throws Exception
 	 *             If something goes wrong
 	 */
-	public void startServer(String whiteListFileName, String... serialPorts) throws Exception{
-		if(portNum == -1){
+	public void startServer(String whiteListFileName, String... serialPorts) throws Exception {
+		if (portNum == -1) {
 			throw new IllegalStateException("Must have a valid port number.");
-		} else if(serialPorts == null || serialPorts.length == 0){
+		} else if (serialPorts == null || serialPorts.length == 0) {
 			throw new IllegalArgumentException("Must have at least 1 port to connect to .");
-		} else{
+		} else {
 			NSERIAL_CONNECTIONS = serialPorts.length;
 		}
-		
+
 		System.out.println("Number of serial connections=" + NSERIAL_CONNECTIONS + " : " + Arrays.toString(serialPorts));
 
 		// Get the white list information
-		try{
+		try {
 			setWhiteList(whiteListFileName);
-		} catch(IOException e){
+		} catch (IOException e) {
 			System.err.println("Unable to find white list file: " + whiteListFileName);
 			System.err.println("Exiting...");
 			System.exit(0);
@@ -236,25 +231,24 @@ public class SerialServer {
 		serialIns = new InputStream[NSERIAL_CONNECTIONS];
 		serialOuts = new OutputStream[NSERIAL_CONNECTIONS];
 
-		for(int i = 0; i < serialPorts.length; i++){
+		for (int i = 0; i < serialPorts.length; i++) {
 			connect(serialPorts[i], i);
 			System.out.println("Connected to: " + serialPorts[i]);
 		}
-		
 
-		for(int i = 0; i < serialIns.length; i++){
-			if(serialIns[i] == null){
+		for (int i = 0; i < serialIns.length; i++) {
+			if (serialIns[i] == null) {
 				System.err.println("Unable to connect to serial port: " + serialPorts[i]);
 				return;
 			}
 		}
 
 		startServer(portNum);
-		
+
 		System.out.println("Waiting for clients to connect...");
 
 		int clientNum = 0;
-		while(true){
+		while (true) {
 			Socket client = server.accept();
 			clientNum++;
 
@@ -271,7 +265,7 @@ public class SerialServer {
 	 * 
 	 * @return All of the server's clients
 	 */
-	public ArrayList<ClientPair> getClients(){
+	public ArrayList<ClientPair> getClients() {
 		return clients;
 	}
 
@@ -282,8 +276,8 @@ public class SerialServer {
 	 *            The serial port number
 	 * @return The serial reader for that port
 	 */
-	public SerialDataReader getSerialReader(int serialPortNum){
-		if(serialPortNum < 0 || serialPortNum >= serialReaders.size()){
+	public SerialDataReader getSerialReader(int serialPortNum) {
+		if (serialPortNum < 0 || serialPortNum >= serialReaders.size()) {
 			return null;
 		}
 
@@ -295,7 +289,7 @@ public class SerialServer {
 	 * 
 	 * @return All of the server's clients' output streams
 	 */
-	public ArrayList<OutputStream> getClientOuts(){
+	public ArrayList<OutputStream> getClientOuts() {
 		return clientOuts;
 	}
 
@@ -304,7 +298,7 @@ public class SerialServer {
 	 * 
 	 * @return All of the server's clients' input streams
 	 */
-	public ArrayList<InputStream> getClientIns(){
+	public ArrayList<InputStream> getClientIns() {
 		return clientIns;
 	}
 
@@ -315,9 +309,9 @@ public class SerialServer {
 	 *            The number of the client to retrieve
 	 * @return The socket for that client
 	 */
-	public Socket getClient(int clientNum){
-		for(ClientPair cp : clients){
-			if(cp.getClientNum() == clientNum){
+	public Socket getClient(int clientNum) {
+		for (ClientPair cp : clients) {
+			if (cp.getClientNum() == clientNum) {
 				return cp.getClient();
 			}
 		}
@@ -332,7 +326,7 @@ public class SerialServer {
 	 *            The index of the client in the array list
 	 * @return The client's output stream
 	 */
-	public OutputStream getClientOut(int idx){
+	public OutputStream getClientOut(int idx) {
 		return clientOuts.get(idx);
 	}
 
@@ -343,21 +337,20 @@ public class SerialServer {
 	 *            The index of the client in the array list
 	 * @return The client's input stream
 	 */
-	public InputStream getClientIn(int idx){
+	public InputStream getClientIn(int idx) {
 		return clientIns.get(idx);
 	}
 
 	/**
-	 * Close the client identified by its number, severing its connection and
-	 * removing it from the list of clients
+	 * Close the client identified by its number, severing its connection and removing it from the list of clients
 	 * 
 	 * @param clientNum
 	 *            The client's identification number
 	 * @param in
 	 *            The client's input stream
 	 */
-	public void closeClient(int clientNum, InputStream in){
-		try{
+	public void closeClient(int clientNum, InputStream in) {
+		try {
 			int inIdx = clientIns.indexOf(in);
 			clientIns.get(inIdx).close();
 			clientOuts.get(inIdx).close();
@@ -366,7 +359,7 @@ public class SerialServer {
 			clientOuts.remove(inIdx);
 
 			System.out.println("Client #" + clientNum + " has disconnected.");
-		} catch(IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -378,8 +371,8 @@ public class SerialServer {
 	 *            The serial port number
 	 * @return That serial port's output stream
 	 */
-	public OutputStream getSerialOut(int serialPortNum){
-		if(serialPortNum >= serialOuts.length){
+	public OutputStream getSerialOut(int serialPortNum) {
+		if (serialPortNum >= serialOuts.length) {
 			return null;
 		}
 
@@ -393,8 +386,8 @@ public class SerialServer {
 	 *            The serial port number
 	 * @return That serial port's input stream
 	 */
-	public InputStream getSerialIn(int serialPortNum){
-		if(serialPortNum >= serialIns.length){
+	public InputStream getSerialIn(int serialPortNum) {
+		if (serialPortNum >= serialIns.length) {
 			return null;
 		}
 
@@ -413,14 +406,14 @@ public class SerialServer {
 		server = new ServerSocket(portNum);
 		System.out.println();
 		System.out.print("Serial Server started");
-		
+
 		try {
-			//Try to get our IP address from Amazon AWS
+			// Try to get our IP address from Amazon AWS
 			URL aws = new URL("http://checkip.amazonaws.com");
 			BufferedReader in = new BufferedReader(new InputStreamReader(aws.openStream()));
 			String ip = in.readLine();
 			System.out.println(" on IP: " + ip + ":" + portNum);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			System.out.println(" on port " + portNum);
 		}
 	}
@@ -440,27 +433,26 @@ public class SerialServer {
 	 *             If something goes wrong
 	 */
 	private void connect(String portName, int serialPortNum) throws NoSuchPortException, PortInUseException,
-			UnsupportedCommOperationException, IOException, TooManyListenersException{
-		if(portName == null){
+			UnsupportedCommOperationException, IOException, TooManyListenersException {
+		if (portName == null) {
 			throw new IllegalArgumentException("Port Name must not be null!");
 		}
 
 		CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
-		if(portIdentifier.isCurrentlyOwned()){
+		if (portIdentifier.isCurrentlyOwned()) {
 			throw new PortInUseException();
-		} else{
+		} else {
 			CommPort commPort = portIdentifier.open(this.getClass().getName(), 2000);
 
-			if(commPort instanceof SerialPort){
+			if (commPort instanceof SerialPort) {
 				SerialPort serialPort = (SerialPort) commPort;
-				serialPort.setSerialPortParams(BAUD_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
-						SerialPort.PARITY_NONE);
+				serialPort.setSerialPortParams(BAUD_RATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
-				//Get the input stream and output stream
+				// Get the input stream and output stream
 				serialIns[serialPortNum] = serialPort.getInputStream();
 				serialOuts[serialPortNum] = serialPort.getOutputStream();
 
-				//Start the reader
+				// Start the reader
 				SerialDataReader serialReader = new SerialDataReader(serialIns[serialPortNum], this, serialPortNum);
 				serialReaders.add(serialReader);
 				(new Thread(serialReader)).start();

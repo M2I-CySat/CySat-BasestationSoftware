@@ -39,7 +39,7 @@ public class SerialUtils {
 	/**
 	 * Running this class lists all of the communiation ports available
 	 */
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		CommunicationPortUtil.listPorts();
 	}
 
@@ -51,8 +51,8 @@ public class SerialUtils {
 	 * @throws IOException
 	 *             If something goes wrong
 	 */
-	public static void flush(InputStream in) throws IOException{
-		while(in.read() > -1)
+	public static void flush(InputStream in) throws IOException {
+		while (in.read() > -1)
 			;
 	}
 
@@ -62,8 +62,8 @@ public class SerialUtils {
 	 * @param buf
 	 *            The buffer to be cleared
 	 */
-	public static void clear(byte[] buf){
-		for(int i = 0; i < buf.length; i++){
+	public static void clear(byte[] buf) {
+		for (int i = 0; i < buf.length; i++) {
 			buf[i] = 0;
 		}
 	}
@@ -74,8 +74,8 @@ public class SerialUtils {
 	 * @param buf
 	 *            The buffer to be cleared
 	 */
-	public static void clear(char[] buf){
-		for(int i = 0; i < buf.length; i++){
+	public static void clear(char[] buf) {
+		for (int i = 0; i < buf.length; i++) {
 			buf[i] = 0;
 		}
 	}
@@ -88,8 +88,8 @@ public class SerialUtils {
 	 * @param toAdd
 	 *            The buffer containing the bytes to add
 	 */
-	public static void addBytes(ArrayList<Byte> base, byte[] toAdd){
-		for(int i = 0; i < toAdd.length; i++){
+	public static void addBytes(ArrayList<Byte> base, byte[] toAdd) {
+		for (int i = 0; i < toAdd.length; i++) {
 			base.add(toAdd[i]);
 		}
 	}
@@ -99,13 +99,12 @@ public class SerialUtils {
 	 * 
 	 * @param src
 	 *            The array list containing the bytes
-	 * @return An array of byte primitives containing the values, in order,
-	 *         present in <i>src</i>
+	 * @return An array of byte primitives containing the values, in order, present in <i>src</i>
 	 */
-	public static byte[] getBytes(ArrayList<Byte> src){
+	public static byte[] getBytes(ArrayList<Byte> src) {
 		byte[] bytes = new byte[src.size()];
 		int i = 0;
-		for(Byte b : src){
+		for (Byte b : src) {
 			bytes[i++] = b;
 		}
 
@@ -121,7 +120,7 @@ public class SerialUtils {
 	 *            The string to look for in the bytes
 	 * @return True, if the string is found in the bytes, false otherwise
 	 */
-	public static boolean contains(ArrayList<Byte> buffer, String msg){
+	public static boolean contains(ArrayList<Byte> buffer, String msg) {
 		String bufString = new String(getBytes(buffer));
 		return bufString.contains(msg);
 	}
@@ -131,27 +130,25 @@ public class SerialUtils {
 	 * 
 	 * @param buf
 	 *            The byte array
-	 * @return A new array which is a copy of the original array, truncated such
-	 *         that the trailing 0s in the original array are removed.
+	 * @return A new array which is a copy of the original array, truncated such that the trailing 0s in the original array are removed.
 	 */
-	public static byte[] trimTrailing0s(byte[] buf){
+	public static byte[] trimTrailing0s(byte[] buf) {
 		int i;
-		for(i = 0; i < buf.length && buf[i] != 0; i++)
+		for (i = 0; i < buf.length && buf[i] != 0; i++)
 			;
 		return Arrays.copyOf(buf, i);
 	}
-	
+
 	/**
 	 * Trim the trailing 0s from an array of bytes
 	 * 
 	 * @param buf
 	 *            The byte array
-	 * @return A new array which is a copy of the original array, truncated such
-	 *         that the trailing 0s in the original array are removed.
+	 * @return A new array which is a copy of the original array, truncated such that the trailing 0s in the original array are removed.
 	 */
-	public static char[] trimTrailing0s(char[] buf){
+	public static char[] trimTrailing0s(char[] buf) {
 		int i;
-		for(i = 0; i < buf.length && buf[i] != 0; i++)
+		for (i = 0; i < buf.length && buf[i] != 0; i++)
 			;
 		return Arrays.copyOf(buf, i);
 	}
@@ -161,40 +158,38 @@ public class SerialUtils {
 	 * 
 	 * @return The jar file's directory on the computer
 	 */
-	public static String getJarDirectory(){
+	public static String getJarDirectory() {
 		String path = SerialServer.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-		try{
+		try {
 			String dir = URLDecoder.decode(path, "UTF-8");
-			
-			//Get rid of the jar file ending (this happens if we run the server from an .exe)
-			if(dir.endsWith(".jar")){
+
+			// Get rid of the jar file ending (this happens if we run the server from an .exe)
+			if (dir.endsWith(".jar")) {
 				dir = dir.substring(0, dir.lastIndexOf('/'));
 			}
-			
-			//Make sure there's a directory separator
-			if(!dir.endsWith("/")){
+
+			// Make sure there's a directory separator
+			if (!dir.endsWith("/")) {
 				dir += "/";
 			}
-			
+
 			return dir;
-		} catch(UnsupportedEncodingException e){
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return "";
 		}
 	}
 
 	/**
-	 * Backup an array of byte data to a file. The data will be appended to the
-	 * log file, and if the file does not exist, it shall be created. The file
-	 * name will be <i>logBaseString/yyyy-MM-dd.txt</i>, where yyyy-MM-dd is the
-	 * date at which the file is created.
+	 * Backup an array of byte data to a file. The data will be appended to the log file, and if the file does not exist, it shall be
+	 * created. The file name will be <i>logBaseString/yyyy-MM-dd.txt</i>, where yyyy-MM-dd is the date at which the file is created.
 	 * 
 	 * @param buffer
 	 *            The byte data to be appended to the file
 	 * @param logBaseString
 	 *            The name of the file base directory.
 	 */
-	public static void backupData(String data, String logBaseString){
+	public static void backupData(String data, String logBaseString) {
 		// //Get a timestamp to attach to the message (in local time)
 		// SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		// String timeStamp = sdf.format(new Date());
@@ -208,16 +203,16 @@ public class SerialUtils {
 		// Get a text log and append the message to it
 		BufferedWriter out;
 		File logDir = new File(logBaseString);
-		if(!logDir.exists() || !logDir.isDirectory()){
+		if (!logDir.exists() || !logDir.isDirectory()) {
 			logDir.mkdirs();
 		}
-		try{
+		try {
 			out = new BufferedWriter(new FileWriter(new File(logBaseString + logTimeStamp + ".txt"), true));
-			if(data.length() > 0){
+			if (data.length() > 0) {
 				out.write(data.trim() + "\r\n");
 			}
 			out.close();
-		} catch(Exception e){
+		} catch (Exception e) {
 			System.err.println("Error writing to log file!");
 			e.printStackTrace();
 		}

@@ -27,22 +27,21 @@ public class StartSerialServer {
 	 * Start the server
 	 * 
 	 * @param args
-	 *            Command line arguments, optionally the names of the serial
-	 *            ports to which the server should connect. If no command line
+	 *            Command line arguments, optionally the names of the serial ports to which the server should connect. If no command line
 	 *            arguments are given, the default serial ports are used.
 	 */
-	public static void main(final String[] args){
-		try{
+	public static void main(final String[] args) {
+		try {
 			SerialServer server = new SerialServer(PORTNUM);
-			if(args.length > 0){
+			if (args.length > 0) {
 				server.startServer(WHITE_LIST, args);
-			} else{
+			} else {
 				server.startServer(WHITE_LIST, defaultPorts);
 			}
-		} catch(NoSuchPortException e){
+		} catch (NoSuchPortException e) {
 			System.err.println("Invalid serial port(s). Exiting...");
 			System.exit(0);
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -10,29 +10,29 @@ public class OSBoard {
 	 * The SerialClient used to talk to the os via the serial port
 	 */
 	private SerialClient client;
-	
+
 	/**
-	 * The serial port number where the rotator is connected to the server
-	 * computer
+	 * The serial port number where the rotator is connected to the server computer
 	 */
 	private int serialPortNum;
-	
+
 	/**
 	 * Construct an OSBoard API wrapper
+	 * 
 	 * @param client
-	 * Serial client for the os
+	 *            Serial client for the os
 	 * @param serialPortNum
-	 * Serial port number
+	 *            Serial port number
 	 */
 	public OSBoard(SerialClient client, int serialPortNum) {
-		if(serialPortNum < 0 || serialPortNum > 9){
+		if (serialPortNum < 0 || serialPortNum > 9) {
 			throw new IllegalArgumentException("Invalid serial port number: " + serialPortNum);
 		}
 
 		this.client = client;
 		this.serialPortNum = serialPortNum;
 	}
-	
+
 	/**
 	 * Send the hello world query
 	 */
@@ -44,11 +44,11 @@ public class OSBoard {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		// Test hello world working
-		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23"); 
-		if(client.getState() == SerialClient.State.ALIVE) {
+		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23");
+		if (client.getState() == SerialClient.State.ALIVE) {
 			OSBoard os = new OSBoard(client, 0);
 			client.addListener(new SerialDataListener() {
 				@Override
@@ -58,7 +58,7 @@ public class OSBoard {
 			});
 			os.sendHello();
 		}
-		
+
 		System.exit(0);
 	}
 }

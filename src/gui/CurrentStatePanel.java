@@ -10,8 +10,8 @@ import javax.swing.JTextField;
 public class CurrentStatePanel extends JPanel {
 	public static JTextField up2 = new JTextField(18);
 	public static JTextField status2 = new JTextField(10);
-	
-	public CurrentStatePanel(){
+
+	public CurrentStatePanel() {
 		setBackground(new Color(30, 30, 30));
 		up2.setBackground(null);
 		up2.setHorizontalAlignment(JTextField.HORIZONTAL);

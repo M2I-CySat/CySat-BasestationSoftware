@@ -25,8 +25,7 @@ public class TS2000Radio {
 	public static final int PACKET_MODE = 1;
 
 	/**
-	 * The mode for updating and polling the status of the server, like
-	 * frequency settings, etc.
+	 * The mode for updating and polling the status of the server, like frequency settings, etc.
 	 */
 	public static final int STATUS_MODE = 2;
 
@@ -34,15 +33,14 @@ public class TS2000Radio {
 	 * The current mode of the radio
 	 */
 	private int currentMode = 0;
-	
+
 	/**
 	 * The SerialClient used to talk to the radio via the serial port
 	 */
 	private SerialClient client;
 
 	/**
-	 * The serial port number where the rotator is connected to the server
-	 * computer
+	 * The serial port number where the rotator is connected to the server computer
 	 */
 	private int serialPortNum;
 
@@ -52,8 +50,7 @@ public class TS2000Radio {
 	 * @param client
 	 *            The SerialClient used to talk to the radio via the serial port
 	 * @param serialPortNum
-	 *            The serial port number where the rotator is connected to the
-	 *            serial server computer
+	 *            The serial port number where the rotator is connected to the serial server computer
 	 */
 	public TS2000Radio(SerialClient client, int serialPortNum) {
 		this.client = client;
@@ -68,11 +65,11 @@ public class TS2000Radio {
 	 * @throws IOException
 	 *             If a read/write error occurs
 	 */
-	public void RadioSetFreqA(int frequency) throws IOException{
-		if(currentMode != STATUS_MODE)
+	public void RadioSetFreqA(int frequency) throws IOException {
+		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
-	
-		if(frequency < 0){
+
+		if (frequency < 0) {
 			throw new IllegalArgumentException("Invalid frequency: " + frequency);
 		}
 
@@ -88,11 +85,11 @@ public class TS2000Radio {
 	 * @throws IOException
 	 *             If a read/write error occurs
 	 */
-	public void RadioSetFreqB(int frequency) throws IOException{
-		if(currentMode != STATUS_MODE)
+	public void RadioSetFreqB(int frequency) throws IOException {
+		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
-	
-		if(frequency < 0){
+
+		if (frequency < 0) {
 			throw new IllegalArgumentException("Invalid frequency: " + frequency);
 		}
 
@@ -108,11 +105,11 @@ public class TS2000Radio {
 	 * @throws IOException
 	 *             If a read/write error occurs
 	 */
-	public void RadioSetFreqSub(int frequency) throws IOException{
-		if(currentMode != STATUS_MODE)
+	public void RadioSetFreqSub(int frequency) throws IOException {
+		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
-	
-		if(frequency < 0){
+
+		if (frequency < 0) {
 			throw new IllegalArgumentException("Invalid frequency: " + frequency);
 		}
 
@@ -127,10 +124,10 @@ public class TS2000Radio {
 	 * @throws IOException
 	 *             If a read/write error occurs
 	 */
-	public int RadioGetFreqA() throws IOException{
-		if(currentMode != STATUS_MODE)
+	public int RadioGetFreqA() throws IOException {
+		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
-	
+
 		String cmd = String.format("%dFA;", serialPortNum);
 		String result = "FA([0-9]{11});";
 		return getIntFromRadio(cmd, result);
@@ -143,10 +140,10 @@ public class TS2000Radio {
 	 * @throws IOException
 	 *             If a read/write error occurs
 	 */
-	public int RadioGetFreqB() throws IOException{
-		if(currentMode != STATUS_MODE)
+	public int RadioGetFreqB() throws IOException {
+		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
-	
+
 		String cmd = String.format("%dFB;", serialPortNum);
 		String result = "FB([0-9]{11});";
 		return getIntFromRadio(cmd, result);
@@ -159,30 +156,28 @@ public class TS2000Radio {
 	 * @throws IOException
 	 *             If a read/write error occurs
 	 */
-	public int RadioGetFreqSub() throws IOException{
-		if(currentMode != STATUS_MODE)
+	public int RadioGetFreqSub() throws IOException {
+		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
-		
+
 		String cmd = String.format("%dFC;", serialPortNum);
 		String result = "FC([0-9]{11});";
 		return getIntFromRadio(cmd, result);
 	}
 
 	/**
-	 * Read an int value from the radio, using the given command and expected
-	 * the result in the given format.
+	 * Read an int value from the radio, using the given command and expected the result in the given format.
 	 * 
 	 * @param cmd
-	 * The command to send to the server (to be sent to the radio)
+	 *            The command to send to the server (to be sent to the radio)
 	 * @param expectedResultFormat
-	 * The expected format (in regex) of the output. There is expected to be a single grouping
-	 * containing the integer result. This grouping will be parsed as an int and returned.
-	 * @return
-	 * An int value from the radio's response to the given command
+	 *            The expected format (in regex) of the output. There is expected to be a single grouping containing the integer result.
+	 *            This grouping will be parsed as an int and returned.
+	 * @return An int value from the radio's response to the given command
 	 * @throws IOException
-	 * In the case of a read/write error
+	 *             In the case of a read/write error
 	 */
-	private int getIntFromRadio(String cmd, String expectedResultFormat) throws IOException{
+	private int getIntFromRadio(String cmd, String expectedResultFormat) throws IOException {
 		final StringBuffer data = new StringBuffer();
 		SerialDataListener serialListener = new SerialDataListener() {
 			@Override
@@ -191,92 +186,93 @@ public class TS2000Radio {
 			}
 		};
 		client.addListener(serialListener);
-		
+
 		// Write the command to poll the radio for the frequency
 		client.write(cmd);
 
 		// Wait for data to come in, terminated by a ';' character
 		long startTime = System.currentTimeMillis();
-		while(!data.toString().endsWith(";") && System.currentTimeMillis() - startTime < TIMEOUT_TIME){
+		while (!data.toString().endsWith(";") && System.currentTimeMillis() - startTime < TIMEOUT_TIME) {
 			// Wait a little bit
-			try{
+			try {
 				Thread.sleep(50);
-			} catch(InterruptedException e){
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		client.removeListener(serialListener);
 
 		// Parse the data string for the frequency
 		int result = -1;
-		try{
+		try {
 			Scanner dataScanner = new Scanner(data.toString());
 			Pattern dataPattern = Pattern.compile(expectedResultFormat);
-			if(dataScanner.hasNext(dataPattern)){
+			if (dataScanner.hasNext(dataPattern)) {
 				result = Integer.parseInt(dataScanner.match().group(1));
-			} else{
+			} else {
 				System.out.println("INVALID DATA RECEIVED: " + data + " (" + Arrays.toString(data.toString().getBytes()) + ")");
 			}
 
 			dataScanner.close();
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return result;
 	}
-	
+
 	/**
 	 * Get the current mode of the TS-2000 radio
-	 * @return
-	 * The current mode of the TS-2000 radio
+	 * 
+	 * @return The current mode of the TS-2000 radio
 	 */
-	public int getCurrentMode(){
+	public int getCurrentMode() {
 		return currentMode;
 	}
 
 	/**
 	 * Set the mode of the radio. Valid choices are:
 	 * <ul>
-	 * <li> <b>PACKET_MODE</b> (for sending and receiving data packets)</li>
-	 * <li> <b>STATUS_MODE</b> (for updating and polling the status of the radio [current frequency setting, etc.])</li>
+	 * <li><b>PACKET_MODE</b> (for sending and receiving data packets)</li>
+	 * <li><b>STATUS_MODE</b> (for updating and polling the status of the radio [current frequency setting, etc.])</li>
 	 * </ul>
+	 * 
 	 * @param mode
 	 * @throws IOException
 	 */
-	public void setMode(int mode){
-		try{
-			if(mode == TS2000Radio.PACKET_MODE){
-				if(currentMode == TS2000Radio.PACKET_MODE){
+	public void setMode(int mode) {
+		try {
+			if (mode == TS2000Radio.PACKET_MODE) {
+				if (currentMode == TS2000Radio.PACKET_MODE) {
 					throw new IllegalStateException("Already in packet mode!");
 				}
-				
+
 				String cmd = String.format("%dTC 0;\n", serialPortNum);
 				client.write(cmd);
 				client.write(serialPortNum + "\n");
 				client.write(serialPortNum + "\n");
-				
+
 				currentMode = PACKET_MODE;
 				System.out.println("Now in packet mode!");
-			} else if(mode == TS2000Radio.STATUS_MODE){
-				if(currentMode == TS2000Radio.STATUS_MODE){
+			} else if (mode == TS2000Radio.STATUS_MODE) {
+				if (currentMode == TS2000Radio.STATUS_MODE) {
 					throw new IllegalStateException("Already in status mode!");
 				}
-				
+
 				String cmd = String.format("%dTC 1;\n", serialPortNum);
 				client.write(cmd);
 				currentMode = STATUS_MODE;
 				System.out.println("Now in status mode!");
-			} else{
+			} else {
 				throw new IllegalArgumentException("Invalid mode!");
 			}
-		} catch(IOException e){ 
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public void sendSerialMsg(String msg) throws IOException{
+
+	public void sendSerialMsg(String msg) throws IOException {
 		client.write(serialPortNum + msg);
 	}
 }

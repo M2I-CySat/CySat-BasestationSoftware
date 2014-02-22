@@ -47,17 +47,17 @@ public class SerialClient {
 	public enum State {
 		ALIVE, DEAD, INVALID_PASSWORD
 	}
-	
+
 	/**
 	 * State of the client
 	 */
 	private State state;
-	
+
 	/**
 	 * The timeout time to wait for a server connection, in ms
 	 */
 	private static final int TIMEOUT_TIME = 5000;
-	
+
 	/**
 	 * A list of all the serial data listeners
 	 */
@@ -70,7 +70,7 @@ public class SerialClient {
 	 *            The host and port number of the server
 	 */
 	public SerialClient(String host, int portNum, String username, String password) {
-		try{
+		try {
 			// Connect to the server
 			server = new Socket();
 			server.connect(new InetSocketAddress(host, portNum), TIMEOUT_TIME);
@@ -79,7 +79,7 @@ public class SerialClient {
 			serverOut = server.getOutputStream();
 
 			// Check to see if the username and password are valid
-			if(validate(username, password)){
+			if (validate(username, password)) {
 				System.out.println();
 				System.out.println("===== CLIENT READY TO HANDLE MESSAGES =====");
 				System.out.println();
@@ -89,22 +89,22 @@ public class SerialClient {
 				dataIn.start();
 
 				state = State.ALIVE;
-			} else{
+			} else {
 				state = State.INVALID_PASSWORD;
 				System.err.println("Invalid username and password. Client dying...");
 				die();
 			}
-		} catch(ConnectException e){
+		} catch (ConnectException e) {
 			System.err.println("Unable to connect to " + host + ":" + portNum + ". Client dying...");
 			die();
-		} catch(SocketException e){
+		} catch (SocketException e) {
 			System.err.println();
 			System.err.println("Server Connection Reset. Client dying...");
 			die();
-		} catch(SocketTimeoutException e){
+		} catch (SocketTimeoutException e) {
 			System.err.println("Unable to connect to " + host + ":" + portNum + ". Client dying...");
 			die();
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("Serial Client Error. Client dying...");
 			die();
@@ -112,11 +112,9 @@ public class SerialClient {
 	}
 
 	/**
-	 * Validate this client using a username and password. This information will
-	 * be checked against a whitelist of valid users that is maintained by the
-	 * server. If the login info appears in the whitelist then the server shall
-	 * deem this client validated and communication with the serial ports may
-	 * proceed.
+	 * Validate this client using a username and password. This information will be checked against a whitelist of valid users that is
+	 * maintained by the server. If the login info appears in the whitelist then the server shall deem this client validated and
+	 * communication with the serial ports may proceed.
 	 * 
 	 * @param username
 	 *            The username to give to the server
@@ -125,9 +123,9 @@ public class SerialClient {
 	 * @return True if the validation was successful and false otherwise
 	 * @throws IOException
 	 *             If there's an error reading from or writing to the server
-	 * @throws InterruptedException 
+	 * @throws InterruptedException
 	 */
-	private boolean validate(String username, String password) throws IOException, InterruptedException{
+	private boolean validate(String username, String password) throws IOException, InterruptedException {
 		// Write the username and password to the server
 		serverOut.write((username + "\n").getBytes());
 		serverOut.write((password + "\n").getBytes());
@@ -146,7 +144,7 @@ public class SerialClient {
 	 * 
 	 * @return
 	 */
-	public InputStream getInputStream(){
+	public InputStream getInputStream() {
 		return serverIn;
 	}
 
@@ -155,7 +153,7 @@ public class SerialClient {
 	 * 
 	 * @return
 	 */
-	public OutputStream getOutputStream(){
+	public OutputStream getOutputStream() {
 		return serverOut;
 	}
 
@@ -166,46 +164,49 @@ public class SerialClient {
 	 *            The data to write
 	 * @throws IOException
 	 */
-	public void write(String data) throws IOException{
+	public void write(String data) throws IOException {
 		serverOut.write(data.getBytes());
 	}
 
 	/**
 	 * Called when the client needs to die
 	 */
-	public void die(){
+	public void die() {
 		state = State.DEAD;
 	}
 
 	/**
 	 * Return the client state
-	 * @return
-	 * the client state
+	 * 
+	 * @return the client state
 	 */
-	public State getState(){
+	public State getState() {
 		return state;
 	}
-	
+
 	/**
 	 * Add a listener to be notified when serial data is received
+	 * 
 	 * @param l
 	 */
 	public void addListener(SerialDataListener l) {
 		listeners.add(l);
 	}
-	
+
 	/**
 	 * Remove a listener so it's no longer notified when serial data is received
+	 * 
 	 * @param l
 	 */
 	public void removeListener(SerialDataListener l) {
 		listeners.remove(l);
 	}
-	
+
 	/**
 	 * Notify all the data listeners we have about some new data
+	 * 
 	 * @param data
-	 * The new data received
+	 *            The new data received
 	 */
 	private void notifyListeners(String data) {
 		for (SerialDataListener l : listeners) {
@@ -218,20 +219,20 @@ public class SerialClient {
 	 */
 	private class DataInThread extends Thread {
 		public DataInThread(final InputStream in) {
-			super(new Runnable(){
+			super(new Runnable() {
 				@Override
-				public void run(){
+				public void run() {
 					String line = null;
 					BufferedReader br = new BufferedReader(new InputStreamReader(in));
-					try{
+					try {
 						// Read from the server and add it to the list
-						while((line = br.readLine()) != null){
+						while ((line = br.readLine()) != null) {
 							notifyListeners(line);
 						}
-					} catch(SocketException e){
+					} catch (SocketException e) {
 						System.err.println("Server connection reset. Reconnect needed. Client dying...");
 						die();
-					} catch(IOException e){
+					} catch (IOException e) {
 						System.err.println("Error when reading from server.");
 						e.printStackTrace();
 					}

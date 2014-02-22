@@ -17,16 +17,16 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 public class TrackerTest {
-	public static void main(String[] args){
-		SwingUtilities.invokeLater(new Runnable(){
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run(){
-				createAndShowGUI(new double[]{ 1, 2, 3, 4, 5 }, new double[]{ 1, 4, 9, 16, 25 });
+			public void run() {
+				createAndShowGUI(new double[] { 1, 2, 3, 4, 5 }, new double[] { 1, 4, 9, 16, 25 });
 			}
 		});
 	}
 
-	public static void createAndShowGUI(double[] azs, double[] els){
+	public static void createAndShowGUI(double[] azs, double[] els) {
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 600);
@@ -35,14 +35,14 @@ public class TrackerTest {
 
 		XYSeriesCollection xySeriesCollection = new XYSeriesCollection();
 		XYSeries series = new XYSeries("Azs & els", false);
-		for(int i = 0; i < azs.length && i < els.length; i++){
+		for (int i = 0; i < azs.length && i < els.length; i++) {
 			series.add(azs[i], els[i]);
 		}
-		
+
 		xySeriesCollection.addSeries(series);
 
-		JFreeChart chart = ChartFactory.createScatterPlot("Azs & Els", "Azs", "Els", xySeriesCollection,
-				PlotOrientation.VERTICAL, false, false, false);
+		JFreeChart chart = ChartFactory.createScatterPlot("Azs & Els", "Azs", "Els", xySeriesCollection, PlotOrientation.VERTICAL, false,
+				false, false);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setSeriesLinesVisible(0, true);
@@ -51,7 +51,7 @@ public class TrackerTest {
 		ValueAxis rangeAxis = plot.getRangeAxis();
 
 		rangeAxis.setRange(0.0, 90.0);
-		
+
 		ChartPanel chartPanel = new ChartPanel(chart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
 		frame.add(chartPanel);
