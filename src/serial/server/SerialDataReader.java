@@ -29,6 +29,11 @@ public class SerialDataReader implements Runnable {
 	 * The serial port number
 	 */
 	private int serialPortNum;
+	
+	/**
+	 * Delimiters to use when parsing input - controls when a line ends
+	 */
+	private String delimiters = "\r\n;$";
 
 	/**
 	 * The client number to respond to
@@ -81,7 +86,7 @@ public class SerialDataReader implements Runnable {
 		while(keepRunning){
 			try{
 				//Read a line and process it, checking every 100ms
-				String data = readSerialData(br, "\n\r;");
+				String data = readSerialData(br, delimiters);
 //				while(){
 					if(!data.isEmpty()){
 						handleSerialDataReceived(data);
@@ -99,11 +104,11 @@ public class SerialDataReader implements Runnable {
 		}
 	}
 	
-	private String readSerialData(BufferedReader br, String terminators) throws IOException {
+	private String readSerialData(BufferedReader br, String delimiters) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		int data;
 		while((data = br.read()) != -1) {
-			if(terminators.contains("" + ((char) data))) {
+			if(delimiters.contains("" + ((char) data))) {
 				return sb.toString();
 			} else {
 				System.out.println("DATA: " + data + " :: " + (char)data);

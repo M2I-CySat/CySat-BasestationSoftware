@@ -68,6 +68,11 @@ public class SerialClient {
 	 * The timeout time to wait for a server connection, in ms
 	 */
 	private static final int TIMEOUT_TIME = 5000;
+	
+	/**
+	 * A list of all the serial data listeners
+	 */
+	private List<SerialDataListener> listeners = new ArrayList<>();
 
 	/**
 	 * Start the client
@@ -242,6 +247,33 @@ public class SerialClient {
 	public State getState(){
 		return state;
 	}
+	
+	/**
+	 * Add a listener to be notified when serial data is received
+	 * @param l
+	 */
+	public void addListener(SerialDataListener l) {
+		listeners.add(l);
+	}
+	
+	/**
+	 * Remove a listener so it's no longer notified when serial data is received
+	 * @param l
+	 */
+	public void removeListener(SerialDataListener l) {
+		listeners.remove(l);
+	}
+	
+	/**
+	 * Notify all the data listeners we have about some new data
+	 * @param data
+	 * The new data received
+	 */
+	private void notifyListeners(String data) {
+		for (SerialDataListener l : listeners) {
+			l.dataReceived(data);
+		}
+	}
 
 	/**
 	 * Reads from server, writes to console
@@ -258,6 +290,7 @@ public class SerialClient {
 						while((line = br.readLine()) != null){
 							synchronized(data){
 								data.add(line);
+								notifyListeners(line);
 							}
 						}
 					} catch(SocketException e){
