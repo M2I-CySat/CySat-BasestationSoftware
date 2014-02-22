@@ -5,6 +5,11 @@ import java.io.IOException;
 import serial.client.SerialClient;
 import serial.client.SerialDataListener;
 
+/**
+ * An API for the operating system board that handles C&DH stuff on the satellite
+ * 
+ * @author Adam Campbell
+ */
 public class OSBoard {
 	/**
 	 * The SerialClient used to talk to the os via the serial port
