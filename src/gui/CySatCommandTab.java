@@ -8,6 +8,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import serial.client.SerialClient;
+import serial.client.SerialDataListener;
+import api.OSBoard;
+
 public class CySatCommandTab extends JPanel {
 	private static final long serialVersionUID = 0L;
 
@@ -20,16 +24,26 @@ public class CySatCommandTab extends JPanel {
 	}
 
 	private void initComponents() {
+		SerialClient client = new SerialClient("penthouse.aere.iastate.edu", 2809, "joe", "password23", 0);
+		final OSBoard os = new OSBoard(client);
+
 		JButton hello = new JButton("Send 'Hello'");
 		hello.setFocusable(false);
 		add(hello);
 
 		final JTextArea response = new JTextArea(5, 30);
-		response.setText("Testing...\n");
+		client.addListener(new SerialDataListener() {
+			@Override
+			public void dataReceived(String data) {
+				response.append(data);
+			}
+		});
+
+		response.setText("Testing...\n\n");
 		hello.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				response.append("Hello, World!\n");
+				os.sendHello();
 			}
 		});
 		JScrollPane scrollPane = new JScrollPane(response, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

@@ -26,13 +26,12 @@ public class RadioTestGUIPanel extends JPanel {
 	private boolean listening = true;
 
 	public RadioTestGUIPanel() {
-		final int serialPortNum = 0;
-		client = new SerialClient("10.24.223.192", 2809, "joe", "password23");
+		client = new SerialClient("10.24.223.192", 2809, "joe", "password23", 0);
 		if (client.getState() != SerialClient.State.ALIVE) {
 			System.err.println("Error: Couldn't connect to serial server! Aborting...");
 			return;
 		}
-		radio = new TS2000Radio(client, 0);
+		radio = new TS2000Radio(client);
 
 		textField = new JTextField(50);
 		enterButton = new JButton("Submit");
@@ -50,7 +49,7 @@ public class RadioTestGUIPanel extends JPanel {
 
 				System.out.println("Text: " + text + " (" + Arrays.toString(text.getBytes()) + ")");
 				try {
-					client.write(serialPortNum + text);
+					client.write(client.getSerialPortNum() + text);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

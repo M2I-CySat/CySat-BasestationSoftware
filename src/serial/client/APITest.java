@@ -48,14 +48,14 @@ public class APITest {
 		}
 
 		// Make the client and start the data out thread
-		SerialClient client = new SerialClient(host, portNum, username, password);
+		SerialClient client = new SerialClient(host, portNum, username, password, 0);
 		client.addListener(new SerialDataListener() {
 			@Override
 			public void dataReceived(String data) {
 				System.out.println("DATA: " + data + " (" + Arrays.toString(data.getBytes()) + ")");
 			}
 		});
-		TS2000Radio radio = new TS2000Radio(client, 0);
+		TS2000Radio radio = new TS2000Radio(client);
 		int frequency = -1;
 		try {
 			Scanner s = new Scanner(System.in);

@@ -12,25 +12,13 @@ public class OSBoard {
 	private SerialClient client;
 
 	/**
-	 * The serial port number where the rotator is connected to the server computer
-	 */
-	private int serialPortNum;
-
-	/**
 	 * Construct an OSBoard API wrapper
 	 * 
 	 * @param client
 	 *            Serial client for the os
-	 * @param serialPortNum
-	 *            Serial port number
 	 */
-	public OSBoard(SerialClient client, int serialPortNum) {
-		if (serialPortNum < 0 || serialPortNum > 9) {
-			throw new IllegalArgumentException("Invalid serial port number: " + serialPortNum);
-		}
-
+	public OSBoard(SerialClient client) {
 		this.client = client;
-		this.serialPortNum = serialPortNum;
 	}
 
 	/**
@@ -39,7 +27,7 @@ public class OSBoard {
 	public void sendHello() {
 		String helloQuery = "!QUERY,HELLO,A0$";
 		try {
-			client.write(String.format("%d%s", serialPortNum, helloQuery));
+			client.write(String.format("%d%s", client.getSerialPortNum(), helloQuery));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -47,9 +35,9 @@ public class OSBoard {
 
 	public static void main(String[] args) {
 		// Test hello world working
-		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23");
+		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23", 0);
 		if (client.getState() == SerialClient.State.ALIVE) {
-			OSBoard os = new OSBoard(client, 0);
+			OSBoard os = new OSBoard(client);
 			client.addListener(new SerialDataListener() {
 				@Override
 				public void dataReceived(String data) {

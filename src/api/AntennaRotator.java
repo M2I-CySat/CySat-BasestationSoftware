@@ -34,25 +34,13 @@ public class AntennaRotator {
 	private int elevation = -1;
 
 	/**
-	 * The serial port number where the rotator is connected to the server computer
-	 */
-	private int serialPortNum;
-
-	/**
 	 * Construct a new antenna rotator to talk to the given client
 	 * 
 	 * @param client
 	 *            The SerialClient used to talk to the rotator via the serial port
-	 * @param serialPortNum
-	 *            The serial port number where the rotator is connected to the serial server computer
 	 */
-	public AntennaRotator(SerialClient client, int serialPortNum) {
-		if (serialPortNum < 0 || serialPortNum > 9) {
-			throw new IllegalArgumentException("Invalid serial port number: " + serialPortNum);
-		}
-
+	public AntennaRotator(SerialClient client) {
 		this.client = client;
-		this.serialPortNum = serialPortNum;
 	}
 
 	/**
@@ -76,7 +64,7 @@ public class AntennaRotator {
 			throw new IllegalArgumentException("Invalid Elevation value!");
 		}
 
-		String cmd = String.format("%dW%03d %03d\\r\n", serialPortNum, azimuth, elevation);
+		String cmd = String.format("%dW%03d %03d\\r\n", client.getSerialPortNum(), azimuth, elevation);
 		client.write(cmd);
 	}
 
@@ -96,7 +84,7 @@ public class AntennaRotator {
 			throw new IllegalArgumentException("Invalid Azimuth value!");
 		}
 
-		String cmd = String.format("%dW%03d\\r\n", serialPortNum, azimuth, elevation);
+		String cmd = String.format("%dW%03d\\r\n", client.getSerialPortNum(), azimuth, elevation);
 		client.write(cmd);
 	}
 
@@ -148,7 +136,7 @@ public class AntennaRotator {
 		client.addListener(serialListener);
 
 		// Send the C2 command
-		String cmd = String.format("%dC2\\r\n", serialPortNum, azimuth, elevation);
+		String cmd = String.format("%dC2\\r\n", client.getSerialPortNum(), azimuth, elevation);
 		client.write(cmd);
 
 		long startTime = System.currentTimeMillis();
@@ -192,9 +180,9 @@ public class AntennaRotator {
 	}
 
 	public static void main(String[] args) {
-		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23");
+		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23", 0);
 		if (client.getState() == SerialClient.State.ALIVE) {
-			AntennaRotator r = new AntennaRotator(client, 0);
+			AntennaRotator r = new AntennaRotator(client);
 			try {
 				r.pollServer();
 				System.out.println("Az: " + r.getCurrentAzimuth() + ", El: " + r.getCurrentElevation());

@@ -64,13 +64,46 @@ public class SerialClient {
 	private List<SerialDataListener> listeners = new LinkedList<>();
 
 	/**
+	 * Serial port number that this client is meant for on the server
+	 */
+	private int serialPortNum;
+
+	/**
 	 * Start the client
 	 * 
-	 * @param args
-	 *            The host and port number of the server
+	 * @param host
+	 *            Host for the server
+	 * @param portNum
+	 *            Portnum for the server
+	 * @param username
+	 *            Username to log in
+	 * @param password
+	 *            Password to log in
 	 */
 	public SerialClient(String host, int portNum, String username, String password) {
+		this(host, portNum, username, password, 0);
+	}
+
+	/**
+	 * Start the client
+	 * 
+	 * @param host
+	 *            Host for the server
+	 * @param portNum
+	 *            Portnum for the server
+	 * @param username
+	 *            Username to log in
+	 * @param password
+	 *            Password to log in
+	 * @param serialPortNum
+	 *            (optional) id for the serial port on the server computer
+	 */
+	public SerialClient(String host, int portNum, String username, String password, int serialPortNum) {
 		try {
+			if (serialPortNum < 0 || serialPortNum > 9) {
+				throw new IllegalArgumentException("Invalid serial port number: " + serialPortNum);
+			}
+
 			// Connect to the server
 			server = new Socket();
 			server.connect(new InetSocketAddress(host, portNum), TIMEOUT_TIME);
@@ -109,6 +142,15 @@ public class SerialClient {
 			System.err.println("Serial Client Error. Client dying...");
 			die();
 		}
+	}
+
+	/**
+	 * Return the serial port number that this client is attached to
+	 * 
+	 * @return
+	 */
+	public int getSerialPortNum() {
+		return serialPortNum;
 	}
 
 	/**

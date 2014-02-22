@@ -40,19 +40,12 @@ public class TS2000Radio {
 	private SerialClient client;
 
 	/**
-	 * The serial port number where the rotator is connected to the server computer
-	 */
-	private int serialPortNum;
-
-	/**
 	 * Construct a new radio object to talk to the given client
 	 * 
 	 * @param client
 	 *            The SerialClient used to talk to the radio via the serial port
-	 * @param serialPortNum
-	 *            The serial port number where the rotator is connected to the serial server computer
 	 */
-	public TS2000Radio(SerialClient client, int serialPortNum) {
+	public TS2000Radio(SerialClient client) {
 		this.client = client;
 		setMode(STATUS_MODE);
 	}
@@ -73,7 +66,7 @@ public class TS2000Radio {
 			throw new IllegalArgumentException("Invalid frequency: " + frequency);
 		}
 
-		String cmd = String.format("%dFA%011d;", serialPortNum, frequency);
+		String cmd = String.format("%dFA%011d;", client.getSerialPortNum(), frequency);
 		client.write(cmd);
 	}
 
@@ -93,7 +86,7 @@ public class TS2000Radio {
 			throw new IllegalArgumentException("Invalid frequency: " + frequency);
 		}
 
-		String cmd = String.format("%dFB%011d;", serialPortNum, frequency);
+		String cmd = String.format("%dFB%011d;", client.getSerialPortNum(), frequency);
 		client.write(cmd);
 	}
 
@@ -113,7 +106,7 @@ public class TS2000Radio {
 			throw new IllegalArgumentException("Invalid frequency: " + frequency);
 		}
 
-		String cmd = String.format("%dFC%011d;", serialPortNum, frequency);
+		String cmd = String.format("%dFC%011d;", client.getSerialPortNum(), frequency);
 		client.write(cmd);
 	}
 
@@ -128,7 +121,7 @@ public class TS2000Radio {
 		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
 
-		String cmd = String.format("%dFA;", serialPortNum);
+		String cmd = String.format("%dFA;", client.getSerialPortNum());
 		String result = "FA([0-9]{11});";
 		return getIntFromRadio(cmd, result);
 	}
@@ -144,7 +137,7 @@ public class TS2000Radio {
 		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
 
-		String cmd = String.format("%dFB;", serialPortNum);
+		String cmd = String.format("%dFB;", client.getSerialPortNum());
 		String result = "FB([0-9]{11});";
 		return getIntFromRadio(cmd, result);
 	}
@@ -160,7 +153,7 @@ public class TS2000Radio {
 		if (currentMode != STATUS_MODE)
 			throw new IllegalStateException("Radio must be in the status mode to deal with frequency!");
 
-		String cmd = String.format("%dFC;", serialPortNum);
+		String cmd = String.format("%dFC;", client.getSerialPortNum());
 		String result = "FC([0-9]{11});";
 		return getIntFromRadio(cmd, result);
 	}
@@ -248,10 +241,10 @@ public class TS2000Radio {
 					throw new IllegalStateException("Already in packet mode!");
 				}
 
-				String cmd = String.format("%dTC 0;\n", serialPortNum);
+				String cmd = String.format("%dTC 0;\n", client.getSerialPortNum());
 				client.write(cmd);
-				client.write(serialPortNum + "\n");
-				client.write(serialPortNum + "\n");
+				client.write(client.getSerialPortNum() + "\n");
+				client.write(client.getSerialPortNum() + "\n");
 
 				currentMode = PACKET_MODE;
 				System.out.println("Now in packet mode!");
@@ -260,7 +253,7 @@ public class TS2000Radio {
 					throw new IllegalStateException("Already in status mode!");
 				}
 
-				String cmd = String.format("%dTC 1;\n", serialPortNum);
+				String cmd = String.format("%dTC 1;\n", client.getSerialPortNum());
 				client.write(cmd);
 				currentMode = STATUS_MODE;
 				System.out.println("Now in status mode!");
@@ -273,6 +266,6 @@ public class TS2000Radio {
 	}
 
 	public void sendSerialMsg(String msg) throws IOException {
-		client.write(serialPortNum + msg);
+		client.write(client.getSerialPortNum() + msg);
 	}
 }
