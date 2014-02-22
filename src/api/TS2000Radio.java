@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import serial.client.SerialClient;
+import serial.client.SerialDataListener;
 
 /**
  * An API for communicating with the TS-2000 Radio
@@ -182,18 +183,21 @@ public class TS2000Radio {
 	 * In the case of a read/write error
 	 */
 	private int getIntFromRadio(String cmd, String expectedResultFormat) throws IOException{
+		final StringBuffer data = new StringBuffer();
+		SerialDataListener serialListener = new SerialDataListener() {
+			@Override
+			public void dataReceived(String serialData) {
+				data.append(serialData);
+			}
+		};
+		client.addListener(serialListener);
+		
 		// Write the command to poll the radio for the frequency
 		client.write(cmd);
 
 		// Wait for data to come in, terminated by a ';' character
-		String data = "";
 		long startTime = System.currentTimeMillis();
-		while(!data.endsWith(";") && System.currentTimeMillis() - startTime < TIMEOUT_TIME){
-			// Get data
-			while(client.hasData()){
-				data += client.getData().trim();
-			}
-
+		while(!data.toString().endsWith(";") && System.currentTimeMillis() - startTime < TIMEOUT_TIME){
 			// Wait a little bit
 			try{
 				Thread.sleep(50);
@@ -201,16 +205,18 @@ public class TS2000Radio {
 				e.printStackTrace();
 			}
 		}
+		
+		client.removeListener(serialListener);
 
 		// Parse the data string for the frequency
 		int result = -1;
 		try{
-			Scanner dataScanner = new Scanner(data);
+			Scanner dataScanner = new Scanner(data.toString());
 			Pattern dataPattern = Pattern.compile(expectedResultFormat);
 			if(dataScanner.hasNext(dataPattern)){
 				result = Integer.parseInt(dataScanner.match().group(1));
 			} else{
-				System.out.println("INVALID DATA RECEIVED: " + data + " (" + Arrays.toString(data.getBytes()) + ")");
+				System.out.println("INVALID DATA RECEIVED: " + data + " (" + Arrays.toString(data.toString().getBytes()) + ")");
 			}
 
 			dataScanner.close();
@@ -250,8 +256,6 @@ public class TS2000Radio {
 				client.write(cmd);
 				client.write(serialPortNum + "\n");
 				client.write(serialPortNum + "\n");
-				while(client.hasData())
-					client.getData();
 				
 				currentMode = PACKET_MODE;
 				System.out.println("Now in packet mode!");
@@ -272,43 +276,7 @@ public class TS2000Radio {
 		}
 	}
 	
-	/**
-	 * Listen for data from the radio and return it if found. Return null if timeout occurs.
-	 * @return
-	 */
-	public String listenForData(){
-		String data = "";
-		long startTime = System.currentTimeMillis();
-		while(System.currentTimeMillis() - startTime < TIMEOUT_TIME){
-			// Get data
-			while(client.hasData()){
-				data += client.getData();
-			}
-
-			// Wait a little bit
-			try{
-				Thread.sleep(50);
-			} catch(InterruptedException e){
-				e.printStackTrace();
-			}
-		}
-		
-		if(data.isEmpty())
-			return null;
-		else
-			return data;
-	}
-	
 	public void sendSerialMsg(String msg) throws IOException{
 		client.write(serialPortNum + msg);
-		try{
-			Thread.sleep(1000);
-		} catch(InterruptedException e){
-			e.printStackTrace();
-		}
-		while(client.hasData()){
-			String d = client.getData();
-			System.out.println("DATA: " + d + " (" + Arrays.toString(d.getBytes()) + ")");
-		}
 	}
 }

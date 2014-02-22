@@ -1,6 +1,7 @@
 package serial.client;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import api.TS2000Radio;
@@ -48,6 +49,12 @@ public class APITest {
 		
 		// Make the client and start the data out thread
 		SerialClient client = new SerialClient(host, portNum, username, password);
+		client.addListener(new SerialDataListener() {
+			@Override
+			public void dataReceived(String data) {
+				System.out.println("DATA: " + data + " (" + Arrays.toString(data.getBytes()) + ")");
+			}
+		});
 		TS2000Radio radio = new TS2000Radio(client, 0);
 		int frequency = -1;
 		try{
@@ -80,13 +87,6 @@ public class APITest {
 					} else if(cmd.contains("c")){
 						frequency = radio.RadioGetFreqSub();
 						System.out.println("Frequency C: " + frequency);
-					} else if(cmd.contains("l")){
-						String data = radio.listenForData();
-						if(data == null){
-							System.out.println("No data received!");
-						} else{
-							System.out.println("Data received: " + data);
-						}
 					} else if(cmd.contains("u")){
 						radio.sendSerialMsg("\r\r");
 					}

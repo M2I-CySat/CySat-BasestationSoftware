@@ -10,8 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import serial.SerialUtils;
@@ -22,11 +21,6 @@ import serial.SerialUtils;
  * @author Adam Campbell
  */
 public class SerialClient {
-	/**
-	 * The timeout value for reading from the serial port, in milliseconds
-	 */
-	public static final int READ_TIMEOUT = 5000;
-
 	/**
 	 * The server socket
 	 */
@@ -48,11 +42,6 @@ public class SerialClient {
 	private DataInThread dataIn;
 
 	/**
-	 * The data that the client has received from the server
-	 */
-	private List<String> data;
-
-	/**
 	 * Client states
 	 */
 	public enum State {
@@ -72,7 +61,7 @@ public class SerialClient {
 	/**
 	 * A list of all the serial data listeners
 	 */
-	private List<SerialDataListener> listeners = new ArrayList<>();
+	private List<SerialDataListener> listeners = new LinkedList<>();
 
 	/**
 	 * Start the client
@@ -81,8 +70,6 @@ public class SerialClient {
 	 *            The host and port number of the server
 	 */
 	public SerialClient(String host, int portNum, String username, String password) {
-		data = (List<String>) Collections.synchronizedList(new ArrayList<String>());
-
 		try{
 			// Connect to the server
 			server = new Socket();
@@ -152,55 +139,6 @@ public class SerialClient {
 
 		// If the server responded with the valid user message, then we're good
 		return serverResponse.equals(SerialUtils.VALID_USER_MESSAGE);
-	}
-
-	/**
-	 * Whether or not the client has data from the server
-	 * 
-	 * @return
-	 */
-	public synchronized boolean hasData(){
-		return data.size() > 0;
-	}
-
-	/**
-	 * Get the oldest data element from the server. The data acts like a queue
-	 * in that regard (FIFO), so if there are multiple data elements, this
-	 * method can be called to get them in order from oldest to most recent.
-	 * 
-	 * If there is no data in the Queue, this method will return null without
-	 * blocking.
-	 * 
-	 * @return
-	 */
-	public synchronized String getData(){
-		if(!hasData())
-			return null;
-
-		return data.remove(0);
-	}
-
-	/**
-	 * Get a single line of data from the server. This method will block until
-	 * data is received or until <code>READ_TIMEOUT</code> milliseconds have
-	 * passed.
-	 */
-	public synchronized String getLineOfData(){
-		long startTime = System.currentTimeMillis();
-		while(!hasData()){
-			try{
-				// If we've been waiting for too long, give up and return null
-				if(System.currentTimeMillis() - startTime > READ_TIMEOUT){
-					return null;
-				}
-
-				Thread.sleep(20);
-			} catch(InterruptedException e){
-				die();
-			}
-		}
-
-		return getData();
 	}
 
 	/**
@@ -288,10 +226,7 @@ public class SerialClient {
 					try{
 						// Read from the server and add it to the list
 						while((line = br.readLine()) != null){
-							synchronized(data){
-								data.add(line);
-								notifyListeners(line);
-							}
+							notifyListeners(line);
 						}
 					} catch(SocketException e){
 						System.err.println("Server connection reset. Reconnect needed. Client dying...");

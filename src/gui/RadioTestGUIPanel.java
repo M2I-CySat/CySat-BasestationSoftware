@@ -22,6 +22,7 @@ public class RadioTestGUIPanel extends JPanel {
 	private SerialClient client;
 	private TS2000Radio radio;
 	
+	@SuppressWarnings("unused")
 	private boolean listening = true;
 	
 	public RadioTestGUIPanel(){
@@ -61,24 +62,24 @@ public class RadioTestGUIPanel extends JPanel {
 		logField = new JTextArea(30, 80);
 		logField.setEditable(false);
 		
-		new Thread(new Runnable(){
-			@Override
-			public synchronized void run(){
-				while(true){
-					if(listening){
-						while(client.hasData()){
-							logField.append(client.getData());
-						}
-					}
-					
-					try{
-						Thread.sleep(100);
-					} catch(InterruptedException e){
-						e.printStackTrace();
-					}
-				}
-			}
-		}).start();
+//		new Thread(new Runnable(){
+//			@Override
+//			public synchronized void run(){
+//				while(true){
+//					if(listening){
+//						while(client.hasData()){
+//							logField.append(client.getData());
+//						}
+//					}
+//					
+//					try{
+//						Thread.sleep(100);
+//					} catch(InterruptedException e){
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}).start();
 		
 		add(textField);
 		add(enterButton);

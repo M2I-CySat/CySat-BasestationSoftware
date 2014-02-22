@@ -5,6 +5,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import serial.client.SerialClient;
+import serial.client.SerialDataListener;
 
 /**
  * An API for the Antenna Rotator. We are using the Yaesu GS-232A
@@ -16,6 +17,11 @@ public class AntennaRotator {
 	 * The SerialClient used to talk to the rotator via the serial port
 	 */
 	private SerialClient client;
+	
+	/**
+	 * The timeout time in milliseconds for rotator communication
+	 */
+	public static final int TIMEOUT_TIME = 5000;
 
 	/**
 	 * The azimuth of the antenna, in degress
@@ -140,14 +146,34 @@ public class AntennaRotator {
 	 *             In the event of a read/write error
 	 */
 	public void pollServer() throws IOException{
+		final StringBuffer data = new StringBuffer();
+		SerialDataListener serialListener = new SerialDataListener() {
+			@Override
+			public void dataReceived(String serialData) {
+				data.append(serialData);
+			}
+		};
+		client.addListener(serialListener);
+		
 		// Send the C2 command
 		String cmd = String.format("%dC2\\r\n", serialPortNum, azimuth, elevation);
 		client.write(cmd);
 
+		long startTime = System.currentTimeMillis();
 		// Get the response and parse it
-		String data = client.getLineOfData();
-		if(data != null){
-			Scanner dataScanner = new Scanner(data);
+		while (data.toString().isEmpty() && System.currentTimeMillis() - startTime < TIMEOUT_TIME){
+			// Wait a little bit
+			try{
+				Thread.sleep(50);
+			} catch(InterruptedException e){
+				e.printStackTrace();
+			}
+		}
+		
+		client.removeListener(serialListener);
+		
+		if(!data.toString().isEmpty()) {
+			Scanner dataScanner = new Scanner(data.toString() );
 
 			// The data comes in as "+AAA+EEE"
 			Pattern dataPattern = Pattern.compile("\\+([0-9]{4})\\+([0-9]{4})");
@@ -166,7 +192,7 @@ public class AntennaRotator {
 				elevation = -1;
 			}
 			dataScanner.close();
-		} else{
+		} else {
 			// If the read request timed out
 			azimuth = -1;
 			elevation = -1;

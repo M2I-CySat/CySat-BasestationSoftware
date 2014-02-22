@@ -60,13 +60,15 @@ public class TerminalSerialClient {
 		SerialClient client = new SerialClient(host, portNum, username, password);
 		if(client.getState() == SerialClient.State.ALIVE){
 			new DataOutThread(client).start();
+			client.addListener(new SerialDataListener() {
+				@Override
+				public void dataReceived(String data) {
+					processSerialDataReceived(prevCommand, data);	
+				}
+			});
 	
 			// Listen for data and process it
 			while(client.getState() == SerialClient.State.ALIVE){
-				while(client.hasData()){
-					processSerialDataReceived(prevCommand, client.getData());
-				}
-	
 				try{
 					Thread.sleep(100);
 				} catch(InterruptedException e){
