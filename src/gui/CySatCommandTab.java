@@ -10,10 +10,10 @@ import javax.swing.JTextArea;
 
 public class CySatCommandTab extends JPanel {
 	private static final long serialVersionUID = 0L;
-	private CySatGUI gui;
+//	private CySatGUI gui;
 	
 	public CySatCommandTab(CySatGUI gui) {
-		this.gui = gui;
+//		this.gui = gui;
 		
 		initComponents();
 	}
