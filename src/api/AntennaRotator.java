@@ -5,7 +5,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import serial.client.SerialClient;
-import serial.client.SerialDataListener;
+import serial.client.SerialBufferedDataListener;
 
 /**
  * An API for the Antenna Rotator. We are using the Yaesu GS-232A
@@ -127,9 +127,9 @@ public class AntennaRotator {
 	 */
 	public void pollServer() throws IOException {
 		final StringBuffer data = new StringBuffer();
-		SerialDataListener serialListener = new SerialDataListener() {
+		SerialBufferedDataListener serialListener = new SerialBufferedDataListener() {
 			@Override
-			public void dataReceived(String serialData) {
+			public void serialBufferedDataReceived(String serialData) {
 				data.append(serialData);
 			}
 		};

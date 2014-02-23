@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import serial.client.SerialClient;
-import serial.client.SerialDataListener;
+import serial.client.SerialBufferedDataListener;
 
 /**
  * An API for communicating with the TS-2000 Radio
@@ -172,9 +172,9 @@ public class TS2000Radio {
 	 */
 	private int getIntFromRadio(String cmd, String expectedResultFormat) throws IOException {
 		final StringBuffer data = new StringBuffer();
-		SerialDataListener serialListener = new SerialDataListener() {
+		SerialBufferedDataListener serialListener = new SerialBufferedDataListener() {
 			@Override
-			public void dataReceived(String serialData) {
+			public void serialBufferedDataReceived(String serialData) {
 				data.append(serialData);
 			}
 		};

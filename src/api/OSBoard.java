@@ -3,7 +3,7 @@ package api;
 import java.io.IOException;
 
 import serial.client.SerialClient;
-import serial.client.SerialDataListener;
+import serial.client.SerialBufferedDataListener;
 
 /**
  * An API for the operating system board that handles C&DH stuff on the satellite
@@ -43,9 +43,9 @@ public class OSBoard {
 		SerialClient client = new SerialClient("10.24.223.109", 2809, "joe", "password23", 0);
 		if (client.getState() == SerialClient.State.ALIVE) {
 			OSBoard os = new OSBoard(client);
-			client.addListener(new SerialDataListener() {
+			client.addListener(new SerialBufferedDataListener() {
 				@Override
-				public void dataReceived(String data) {
+				public void serialBufferedDataReceived(String data) {
 					System.out.println("DATA RECEIVED: " + data);
 				}
 			});

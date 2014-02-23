@@ -60,9 +60,9 @@ public class TerminalSerialClient {
 		SerialClient client = new SerialClient(host, portNum, username, password);
 		if (client.getState() == SerialClient.State.ALIVE) {
 			new DataOutThread(client).start();
-			client.addListener(new SerialDataListener() {
+			client.addListener(new SerialBufferedDataListener() {
 				@Override
-				public void dataReceived(String data) {
+				public void serialBufferedDataReceived(String data) {
 					processSerialDataReceived(prevCommand, data);
 				}
 			});

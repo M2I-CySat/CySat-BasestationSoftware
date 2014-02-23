@@ -9,7 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import serial.client.SerialClient;
-import serial.client.SerialDataListener;
+import serial.client.SerialBufferedDataListener;
 import api.OSBoard;
 
 public class CySatCommandTab extends JPanel {
@@ -32,9 +32,9 @@ public class CySatCommandTab extends JPanel {
 		add(hello);
 
 		final JTextArea response = new JTextArea(5, 30);
-		client.addListener(new SerialDataListener() {
+		client.addListener(new SerialBufferedDataListener() {
 			@Override
-			public void dataReceived(String data) {
+			public void serialBufferedDataReceived(String data) {
 				response.append(data + "\n");
 			}
 		});

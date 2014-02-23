@@ -50,9 +50,9 @@ public class APITest {
 		// Make the client and start the data out thread
 		SerialClient client = new SerialClient(host, portNum, username, password, 0);
 		if (client.getState() == SerialClient.State.ALIVE) {
-			client.addListener(new SerialDataListener() {
+			client.addListener(new SerialBufferedDataListener() {
 				@Override
-				public void dataReceived(String data) {
+				public void serialBufferedDataReceived(String data) {
 					System.out.println("DATA: " + data + " (" + Arrays.toString(data.getBytes()) + ")");
 				}
 			});

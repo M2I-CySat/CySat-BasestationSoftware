@@ -61,7 +61,7 @@ public class SerialClient {
 	/**
 	 * A list of all the serial data listeners
 	 */
-	private List<SerialDataListener> listeners = new LinkedList<>();
+	private List<SerialBufferedDataListener> listeners = new LinkedList<>();
 
 	/**
 	 * Serial port number that this client is meant for on the server
@@ -231,7 +231,7 @@ public class SerialClient {
 	 * 
 	 * @param l
 	 */
-	public void addListener(SerialDataListener l) {
+	public void addListener(SerialBufferedDataListener l) {
 		listeners.add(l);
 	}
 
@@ -240,7 +240,7 @@ public class SerialClient {
 	 * 
 	 * @param l
 	 */
-	public void removeListener(SerialDataListener l) {
+	public void removeListener(SerialBufferedDataListener l) {
 		listeners.remove(l);
 	}
 
@@ -251,8 +251,8 @@ public class SerialClient {
 	 *            The new data received
 	 */
 	private void notifyListeners(String data) {
-		for (SerialDataListener l : listeners) {
-			l.dataReceived(data);
+		for (SerialBufferedDataListener l : listeners) {
+			l.serialBufferedDataReceived(data);
 		}
 	}
 
