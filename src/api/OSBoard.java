@@ -32,7 +32,7 @@ public class OSBoard {
 	public void sendHello() {
 		String helloQuery = "!QUERY,HELLO,A0$";
 		try {
-			client.write(String.format("%d%s", client.getSerialPortNum(), helloQuery));
+			client.write(String.format("%d%s\n", client.getSerialPortNum(), helloQuery));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -40,16 +40,24 @@ public class OSBoard {
 
 	public static void main(String[] args) {
 		// Test hello world working
-		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23", 0);
+		SerialClient client = new SerialClient("10.24.223.109", 2809, "joe", "password23", 0);
 		if (client.getState() == SerialClient.State.ALIVE) {
 			OSBoard os = new OSBoard(client);
 			client.addListener(new SerialDataListener() {
 				@Override
 				public void dataReceived(String data) {
-					System.err.println("DATA RECEIVED: " + data);
+					System.out.println("DATA RECEIVED: " + data);
 				}
 			});
 			os.sendHello();
+			
+			while (true) {
+				try {
+					Thread.sleep(100);
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		System.exit(0);

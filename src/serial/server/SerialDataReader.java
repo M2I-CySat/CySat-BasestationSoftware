@@ -107,11 +107,11 @@ public class SerialDataReader implements Runnable {
 		StringBuilder sb = new StringBuilder();
 		int data;
 		while ((data = br.read()) != -1) {
+			//System.out.println("DATA: " + data + " :: " + (char) data);
+			sb.append((char) data);
+			
 			if (delimiters.contains("" + ((char) data))) {
 				return sb.toString();
-			} else {
-				System.out.println("DATA: " + data + " :: " + (char) data);
-				sb.append((char) data);
 			}
 		}
 

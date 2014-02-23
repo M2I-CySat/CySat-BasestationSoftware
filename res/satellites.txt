@@ -30,3 +30,6 @@ CUBESAT XI-IV (CO-57)
 CUBESAT XI-V (CO-58) 
 SWISSCUBE
 AAU CUBESAT   
+
+http://www.celestrak.com/NORAD/elements/amateur.txt
+OSCAR 7 (AO-7) 

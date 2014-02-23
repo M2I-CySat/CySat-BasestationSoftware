@@ -24,7 +24,7 @@ public class CySatCommandTab extends JPanel {
 	}
 
 	private void initComponents() {
-		SerialClient client = new SerialClient("penthouse.aere.iastate.edu", 2809, "joe", "password23", 0);
+		SerialClient client = new SerialClient("10.24.223.109", 2809, "joe", "password23", 0);
 		final OSBoard os = new OSBoard(client);
 
 		JButton hello = new JButton("Send 'Hello'");
@@ -35,7 +35,7 @@ public class CySatCommandTab extends JPanel {
 		client.addListener(new SerialDataListener() {
 			@Override
 			public void dataReceived(String data) {
-				response.append(data);
+				response.append(data + "\n");
 			}
 		});
 
