@@ -232,7 +232,13 @@ public class SerialClient {
 	 * @param l
 	 */
 	public void addListener(SerialBufferedDataListener l) {
-		listeners.add(l);
+		if (l == null) {
+			throw new IllegalArgumentException("Listener cannot be null!");
+		}
+		
+		synchronized (listeners) {
+			listeners.add(l);
+		}
 	}
 
 	/**
@@ -241,7 +247,9 @@ public class SerialClient {
 	 * @param l
 	 */
 	public void removeListener(SerialBufferedDataListener l) {
-		listeners.remove(l);
+		synchronized (listeners) {
+			listeners.remove(l);
+		}
 	}
 
 	/**
@@ -251,8 +259,10 @@ public class SerialClient {
 	 *            The new data received
 	 */
 	private void notifyListeners(String data) {
-		for (SerialBufferedDataListener l : listeners) {
-			l.serialBufferedDataReceived(data);
+		synchronized (listeners) {
+			for (SerialBufferedDataListener l : listeners) {
+				l.serialBufferedDataReceived(data);
+			}
 		}
 	}
 
