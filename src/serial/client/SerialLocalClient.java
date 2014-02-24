@@ -9,8 +9,6 @@ import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 
-import serial.server.SerialLocalDataReader;
-
 /**
  * Implementation of SerialClient for connecting to serial devices locally, without the server
  * 

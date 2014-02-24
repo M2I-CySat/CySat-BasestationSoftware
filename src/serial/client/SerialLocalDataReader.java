@@ -1,10 +1,10 @@
-package serial.server;
+package serial.client;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import serial.SerialUtils;
-import serial.client.SerialClient;
+import serial.server.SerialDataReader;
 
 /**
  * Implementation of SerialDataReader for doing local serial communication without the server
