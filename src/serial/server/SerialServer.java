@@ -136,7 +136,7 @@ public class SerialServer {
 	/**
 	 * The serial readers for each port
 	 */
-	private ArrayList<SerialDataReader> serialReaders = new ArrayList<SerialDataReader>();
+	private ArrayList<SerialServerDataReader> serialReaders = new ArrayList<SerialServerDataReader>();
 
 	/**
 	 * Construct a new Serial Server on the given port
@@ -276,7 +276,7 @@ public class SerialServer {
 	 *            The serial port number
 	 * @return The serial reader for that port
 	 */
-	public SerialDataReader getSerialReader(int serialPortNum) {
+	public SerialServerDataReader getSerialReader(int serialPortNum) {
 		if (serialPortNum < 0 || serialPortNum >= serialReaders.size()) {
 			return null;
 		}
@@ -453,7 +453,7 @@ public class SerialServer {
 				serialOuts[serialPortNum] = serialPort.getOutputStream();
 
 				// Start the reader
-				SerialDataReader serialReader = new SerialDataReader(serialIns[serialPortNum], this, serialPortNum);
+				SerialServerDataReader serialReader = new SerialServerDataReader(serialIns[serialPortNum], this, serialPortNum);
 				serialReaders.add(serialReader);
 				(new Thread(serialReader)).start();
 			}

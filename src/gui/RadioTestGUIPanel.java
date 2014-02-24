@@ -12,22 +12,22 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import api.TS2000Radio;
-import serial.client.SerialClient;
+import serial.client.SerialTCPClient;
 
 @SuppressWarnings("serial")
 public class RadioTestGUIPanel extends JPanel {
 	private JTextField textField;
 	private JButton enterButton;
 	private JTextArea logField;
-	private SerialClient client;
+	private SerialTCPClient client;
 	private TS2000Radio radio;
 
 	@SuppressWarnings("unused")
 	private boolean listening = true;
 
 	public RadioTestGUIPanel() {
-		client = new SerialClient("10.24.223.192", 2809, "joe", "password23", 0);
-		if (client.getState() != SerialClient.State.ALIVE) {
+		client = new SerialTCPClient("10.24.223.192", 2809, "joe", "password23", 0);
+		if (client.getState() != SerialTCPClient.State.ALIVE) {
 			System.err.println("Error: Couldn't connect to serial server! Aborting...");
 			return;
 		}
@@ -49,7 +49,7 @@ public class RadioTestGUIPanel extends JPanel {
 
 				System.out.println("Text: " + text + " (" + Arrays.toString(text.getBytes()) + ")");
 				try {
-					client.write(client.getSerialPortNum() + text);
+					client.write(text);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}

@@ -57,8 +57,8 @@ public class TerminalSerialClient {
 		}
 
 		// Make the client and start the data out thread
-		SerialClient client = new SerialClient(host, portNum, username, password);
-		if (client.getState() == SerialClient.State.ALIVE) {
+		SerialTCPClient client = new SerialTCPClient(host, portNum, username, password);
+		if (client.getState() == SerialTCPClient.State.ALIVE) {
 			new DataOutThread(client).start();
 			client.addListener(new SerialBufferedDataListener() {
 				@Override
@@ -68,7 +68,7 @@ public class TerminalSerialClient {
 			});
 
 			// Listen for data and process it
-			while (client.getState() == SerialClient.State.ALIVE) {
+			while (client.getState() == SerialTCPClient.State.ALIVE) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -84,7 +84,7 @@ public class TerminalSerialClient {
 	 * Reads from console, writes to server
 	 */
 	private static class DataOutThread extends Thread {
-		public DataOutThread(final SerialClient client) {
+		public DataOutThread(final SerialTCPClient client) {
 			super(new Runnable() {
 				@Override
 				public void run() {
@@ -93,7 +93,7 @@ public class TerminalSerialClient {
 					String line = null;
 					try {
 						// Read from System.in and transmit the command to the server
-						while (client.getState() == SerialClient.State.ALIVE && (line = br.readLine()) != null) {
+						while (client.getState() == SerialTCPClient.State.ALIVE && (line = br.readLine()) != null) {
 							// Remove the line ending from the message
 							int windows = line.lastIndexOf("\r\n");
 							int unix = line.lastIndexOf("\n");

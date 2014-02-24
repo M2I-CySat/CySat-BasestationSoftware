@@ -2,7 +2,7 @@ package api;
 
 import java.io.IOException;
 
-import serial.client.SerialClient;
+import serial.client.SerialTCPClient;
 import serial.client.SerialBufferedDataListener;
 
 /**
@@ -14,7 +14,7 @@ public class OSBoard {
 	/**
 	 * The SerialClient used to talk to the os via the serial port
 	 */
-	private SerialClient client;
+	private SerialTCPClient client;
 
 	/**
 	 * Construct an OSBoard API wrapper
@@ -22,7 +22,7 @@ public class OSBoard {
 	 * @param client
 	 *            Serial client for the os
 	 */
-	public OSBoard(SerialClient client) {
+	public OSBoard(SerialTCPClient client) {
 		this.client = client;
 	}
 
@@ -32,7 +32,7 @@ public class OSBoard {
 	public void sendHello() {
 		String helloQuery = "!QUERY,HELLO,A0$";
 		try {
-			client.write(String.format("%d%s\n", client.getSerialPortNum(), helloQuery));
+			client.write(String.format("%s\n", helloQuery));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -40,8 +40,8 @@ public class OSBoard {
 
 	public static void main(String[] args) {
 		// Test hello world working
-		SerialClient client = new SerialClient("10.24.223.109", 2809, "joe", "password23", 0);
-		if (client.getState() == SerialClient.State.ALIVE) {
+		SerialTCPClient client = new SerialTCPClient("10.24.223.109", 2809, "joe", "password23", 0);
+		if (client.getState() == SerialTCPClient.State.ALIVE) {
 			OSBoard os = new OSBoard(client);
 			client.addListener(new SerialBufferedDataListener() {
 				@Override

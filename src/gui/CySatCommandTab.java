@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import serial.client.SerialClient;
+import serial.client.SerialTCPClient;
 import serial.client.SerialBufferedDataListener;
 import api.OSBoard;
 
@@ -24,7 +24,7 @@ public class CySatCommandTab extends JPanel {
 	}
 
 	private void initComponents() {
-		SerialClient client = new SerialClient("10.24.223.109", 2809, "joe", "password23", 0);
+		SerialTCPClient client = new SerialTCPClient("10.24.223.109", 2809, "joe", "password23", 0);
 		final OSBoard os = new OSBoard(client);
 
 		JButton hello = new JButton("Send 'Hello'");

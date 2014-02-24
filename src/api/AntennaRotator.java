@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import serial.client.SerialClient;
+import serial.client.SerialTCPClient;
 import serial.client.SerialBufferedDataListener;
 
 /**
@@ -16,7 +16,7 @@ public class AntennaRotator {
 	/**
 	 * The SerialClient used to talk to the rotator via the serial port
 	 */
-	private SerialClient client;
+	private SerialTCPClient client;
 
 	/**
 	 * The timeout time in milliseconds for rotator communication
@@ -39,7 +39,7 @@ public class AntennaRotator {
 	 * @param client
 	 *            The SerialClient used to talk to the rotator via the serial port
 	 */
-	public AntennaRotator(SerialClient client) {
+	public AntennaRotator(SerialTCPClient client) {
 		this.client = client;
 	}
 
@@ -64,7 +64,7 @@ public class AntennaRotator {
 			throw new IllegalArgumentException("Invalid Elevation value!");
 		}
 
-		String cmd = String.format("%dW%03d %03d\\r\n", client.getSerialPortNum(), azimuth, elevation);
+		String cmd = String.format("W%03d %03d\\r\n", azimuth, elevation);
 		client.write(cmd);
 	}
 
@@ -84,7 +84,7 @@ public class AntennaRotator {
 			throw new IllegalArgumentException("Invalid Azimuth value!");
 		}
 
-		String cmd = String.format("%dW%03d\\r\n", client.getSerialPortNum(), azimuth, elevation);
+		String cmd = String.format("W%03d\\r\n", azimuth, elevation);
 		client.write(cmd);
 	}
 
@@ -136,7 +136,7 @@ public class AntennaRotator {
 		client.addListener(serialListener);
 
 		// Send the C2 command
-		String cmd = String.format("%dC2\\r\n", client.getSerialPortNum(), azimuth, elevation);
+		String cmd = String.format("C2\\r\n", azimuth, elevation);
 		client.write(cmd);
 
 		long startTime = System.currentTimeMillis();
@@ -180,8 +180,8 @@ public class AntennaRotator {
 	}
 
 	public static void main(String[] args) {
-		SerialClient client = new SerialClient("10.24.223.192", 2809, "joe", "password23", 0);
-		if (client.getState() == SerialClient.State.ALIVE) {
+		SerialTCPClient client = new SerialTCPClient("10.24.223.192", 2809, "joe", "password23", 0);
+		if (client.getState() == SerialTCPClient.State.ALIVE) {
 			AntennaRotator r = new AntennaRotator(client);
 			try {
 				r.pollServer();

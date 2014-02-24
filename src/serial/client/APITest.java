@@ -48,8 +48,8 @@ public class APITest {
 		}
 
 		// Make the client and start the data out thread
-		SerialClient client = new SerialClient(host, portNum, username, password, 0);
-		if (client.getState() == SerialClient.State.ALIVE) {
+		SerialTCPClient client = new SerialTCPClient(host, portNum, username, password, 0);
+		if (client.getState() == SerialTCPClient.State.ALIVE) {
 			client.addListener(new SerialBufferedDataListener() {
 				@Override
 				public void serialBufferedDataReceived(String data) {
@@ -88,8 +88,6 @@ public class APITest {
 						} else if (cmd.contains("c")) {
 							frequency = radio.RadioGetFreqSub();
 							System.out.println("Frequency C: " + frequency);
-						} else if (cmd.contains("u")) {
-							radio.sendSerialMsg("\r\r");
 						}
 					} catch (IllegalArgumentException e) {
 						e.printStackTrace();

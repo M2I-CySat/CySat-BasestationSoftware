@@ -31,7 +31,7 @@ import javax.swing.JTextArea;
 import orbits.CelestrakSatellite;
 import orbits.CommandSet;
 import orbits.SatellitePass;
-import serial.client.SerialClient;
+import serial.client.SerialTCPClient;
 import uk.me.g4dpz.satellite.SatPassTime;
 import uk.me.g4dpz.satellite.SatPos;
 import util.SatelliteUtils;
@@ -51,7 +51,7 @@ public class CySatMapTab extends JPanel {
 	private final JButton connectButton;
 
 	private AntennaRotator rotator = null;
-	private SerialClient client = null;
+	private SerialTCPClient client = null;
 
 	public CySatMapTab(final CySatGUI gui) {
 		this.gui = gui;
@@ -410,14 +410,14 @@ public class CySatMapTab extends JPanel {
 				if (username != null) {
 					String password = JOptionPane.showInputDialog(null, new LabelText("Enter password: "), "password23");
 					if (password != null) {
-						client = new SerialClient(serverIP, Integer.parseInt(portNum), username, password, 0);
-						if (client.getState() == SerialClient.State.ALIVE) {
+						client = new SerialTCPClient(serverIP, Integer.parseInt(portNum), username, password, 0);
+						if (client.getState() == SerialTCPClient.State.ALIVE) {
 							rotator = new AntennaRotator(client);
 							JOptionPane.showMessageDialog(null, "Success! Server connection established :D");
 							connectButton.setEnabled(false);
-						} else if (client.getState() == SerialClient.State.DEAD) {
+						} else if (client.getState() == SerialTCPClient.State.DEAD) {
 							JOptionPane.showMessageDialog(null, "Unable to connect to " + serverIP + ":" + portNum);
-						} else if (client.getState() == SerialClient.State.INVALID_PASSWORD) {
+						} else if (client.getState() == SerialTCPClient.State.INVALID_PASSWORD) {
 							JOptionPane.showMessageDialog(null, "Invalid username or password!");
 						}
 					}
