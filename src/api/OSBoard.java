@@ -1,9 +1,15 @@
 package api;
 
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
+import gnu.io.UnsupportedCommOperationException;
+
 import java.io.IOException;
 
-import serial.client.SerialTCPClient;
 import serial.client.SerialBufferedDataListener;
+import serial.client.SerialClient;
+import serial.client.SerialLocalClient;
+import serial.client.SerialTCPClient;
 
 /**
  * An API for the operating system board that handles C&DH stuff on the satellite
@@ -14,7 +20,7 @@ public class OSBoard {
 	/**
 	 * The SerialClient used to talk to the os via the serial port
 	 */
-	private SerialTCPClient client;
+	private SerialClient client;
 
 	/**
 	 * Construct an OSBoard API wrapper
@@ -22,7 +28,7 @@ public class OSBoard {
 	 * @param client
 	 *            Serial client for the os
 	 */
-	public OSBoard(SerialTCPClient client) {
+	public OSBoard(SerialClient client) {
 		this.client = client;
 	}
 
@@ -39,9 +45,22 @@ public class OSBoard {
 	}
 
 	public static void main(String[] args) {
+		boolean useTCP = false;
+		
+		SerialClient client = null;
+		if (useTCP) {
+			client = new SerialTCPClient("10.24.223.109", 2809, "joe", "password23", 0);
+		} else {
+			try {
+				client = new SerialLocalClient("COM17", 9600);
+			} catch (NoSuchPortException | PortInUseException | UnsupportedCommOperationException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 		// Test hello world working
-		SerialTCPClient client = new SerialTCPClient("10.24.223.109", 2809, "joe", "password23", 0);
-		if (client.getState() == SerialTCPClient.State.ALIVE) {
+		if (client.getState() == SerialClient.State.ALIVE) {
 			OSBoard os = new OSBoard(client);
 			client.addListener(new SerialBufferedDataListener() {
 				@Override

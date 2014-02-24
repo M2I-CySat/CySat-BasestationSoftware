@@ -51,6 +51,8 @@ public class SerialLocalClient extends SerialClient {
 				// Start the reader
 				SerialLocalDataReader serialReader = new SerialLocalDataReader(in, this, portName);
 				(new Thread(serialReader)).start();
+				
+				state = State.ALIVE;
 			}
 		}
 	}
