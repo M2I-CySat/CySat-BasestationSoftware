@@ -51,12 +51,10 @@ public class OSBoard {
 			});
 			os.sendHello();
 			
-			while (true) {
-				try {
-					Thread.sleep(100);
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
+			try {
+				Thread.sleep(5000);
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
 		}
 
