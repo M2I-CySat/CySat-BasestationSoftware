@@ -74,10 +74,10 @@ public class ClientDataReader implements Runnable {
 			// client the appropriate result message
 			if (clientUser != null && clientPass != null && whiteList.contains(new AllowedUser(clientUser.trim(), clientPass.trim()))) {
 				valid = true;
-				clientOut.write(SerialUtils.VALID_USER_MESSAGE.getBytes());
+				clientOut.write((SerialUtils.VALID_USER_MESSAGE + "\n").getBytes());
 			} else {
 				valid = false;
-				clientOut.write(SerialUtils.INVALID_USER_MESSAGE.getBytes());
+				clientOut.write((SerialUtils.INVALID_USER_MESSAGE + "\n").getBytes());
 			}
 		} catch (IOException e) {
 			valid = false;

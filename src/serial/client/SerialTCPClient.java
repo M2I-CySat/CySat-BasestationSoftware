@@ -134,12 +134,14 @@ public class SerialTCPClient extends SerialClient {
 		out.write((password + "\n").getBytes());
 
 		// Wait for the server's response
-		byte[] buffer = new byte[SerialUtils.BUFFER_SIZE];
+		/* byte[] buffer = new byte[SerialUtils.BUFFER_SIZE];
 		in.read(buffer);
-		String serverResponse = new String(SerialUtils.trimTrailing0s(buffer));
+		String serverResponse = new String(SerialUtils.trimTrailing0s(buffer)); */
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		String serverResponse = br.readLine();
 
 		// If the server responded with the valid user message, then we're good
-		return serverResponse.equals(SerialUtils.VALID_USER_MESSAGE);
+		return SerialUtils.VALID_USER_MESSAGE.equals(serverResponse);
 	}
 
 	/**
