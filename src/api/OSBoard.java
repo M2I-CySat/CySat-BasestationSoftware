@@ -27,7 +27,7 @@ public class OSBoard {
 		
 		@Override
 		public String toString() {
-			return String.format("[%s] Axis: %s, Voltage: %0.2f, -Current: %0.2f, +Current: %0.2f", 
+			return String.format("{[%s] Axis: %s, Voltage: %0.2f, -Current: %0.2f, +Current: %0.2f}", 
 								getClass().getName(), axis.name(), voltage, minusCurrent, plusCurrent);
 		}
 	}

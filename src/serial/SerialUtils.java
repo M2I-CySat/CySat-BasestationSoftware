@@ -8,11 +8,7 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
-import serial.client.SerialBufferedDataListener;
-import serial.client.SerialClient;
 import serial.server.SerialServer;
 
 /**

@@ -9,10 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
 
-import jssc.SerialPortException;
-import serial.client.SerialBufferedDataListener;
 import serial.client.SerialLocalClient;
-import serial.client.SerialClient.State;
 import api.OSBoard;
 
 public class CySatCommandTab extends JPanel {
@@ -43,14 +40,14 @@ public class CySatCommandTab extends JPanel {
 		final JTextArea response = new JTextArea(20, 30);
 		DefaultCaret caret = (DefaultCaret)response.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		if (client != null && client.getState() == State.ALIVE) {
-			client.addListener(new SerialBufferedDataListener() {
-				@Override
-				public void serialBufferedDataReceived(String data) {
-					response.append(data + "\n");
-				}
-			});
-		}
+//		if (client != null && client.getState() == State.ALIVE) {
+//			client.addListener(new SerialBufferedDataListener() {
+//				@Override
+//				public void serialBufferedDataReceived(String data) {
+//					response.append(data + "\n");
+//				}
+//			});
+//		}
 
 		response.setText("Testing...\n\n");
 		hello.addActionListener(new ActionListener() {

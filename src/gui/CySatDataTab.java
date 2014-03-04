@@ -10,10 +10,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.xml.ws.Response;
 
 import jssc.SerialPortException;
-import serial.client.SerialBufferedDataListener;
 import serial.client.SerialClient;
 import serial.client.SerialLocalClient;
 import api.OSBoard;
@@ -30,8 +28,6 @@ public class CySatDataTab extends JPanel {
 		JButton btnPowpanelX = new JButton("Power Panel X");
 		btnPowpanelX.setFocusable(false);
 		btnPowpanelX.addActionListener(new ActionListener() {
-			boolean done = false;
-			
 			public void actionPerformed(ActionEvent e) {
 				ensureOSBoardInitialized();
 				if (os != null) {
