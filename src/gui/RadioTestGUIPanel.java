@@ -50,7 +50,7 @@ public class RadioTestGUIPanel extends JPanel {
 				System.out.println("Text: " + text + " (" + Arrays.toString(text.getBytes()) + ")");
 				try {
 					client.write(text);
-				} catch (IOException e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 

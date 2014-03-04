@@ -3,16 +3,16 @@ package serial;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import serial.client.SerialBufferedDataListener;
+import serial.client.SerialClient;
 import serial.server.SerialServer;
 
 /**
@@ -35,122 +35,17 @@ public class SerialUtils {
 	 * The size of the buffer to be used for reading/writing
 	 */
 	public static final int BUFFER_SIZE = 1024;
+	
+	/**
+	 * Default amount of time to wait for a serial response
+	 */
+	public static final int DEFAULT_SERIAL_RESPONSE_TIMEOUT = 500;
 
 	/**
 	 * Running this class lists all of the communiation ports available
 	 */
 	public static void main(String[] args) {
 		CommunicationPortUtil.listPorts();
-	}
-
-	/**
-	 * Flush the input stream by reading until it has nothing left to give
-	 * 
-	 * @param in
-	 *            The input stream to be flushed
-	 * @throws IOException
-	 *             If something goes wrong
-	 */
-	public static void flush(InputStream in) throws IOException {
-		while (in.read() > -1)
-			;
-	}
-
-	/**
-	 * Clear the buffer by filling it with 0s
-	 * 
-	 * @param buf
-	 *            The buffer to be cleared
-	 */
-	public static void clear(byte[] buf) {
-		for (int i = 0; i < buf.length; i++) {
-			buf[i] = 0;
-		}
-	}
-
-	/**
-	 * Clear the buffer by filling it with 0s
-	 * 
-	 * @param buf
-	 *            The buffer to be cleared
-	 */
-	public static void clear(char[] buf) {
-		for (int i = 0; i < buf.length; i++) {
-			buf[i] = 0;
-		}
-	}
-
-	/**
-	 * Add the bytes contained in <i>toAdd</i> to <i>base</i>.
-	 * 
-	 * @param base
-	 *            The array list to which the bytes will be appended
-	 * @param toAdd
-	 *            The buffer containing the bytes to add
-	 */
-	public static void addBytes(ArrayList<Byte> base, byte[] toAdd) {
-		for (int i = 0; i < toAdd.length; i++) {
-			base.add(toAdd[i]);
-		}
-	}
-
-	/**
-	 * Get the bytes contained in an array list as an array of byte primitives
-	 * 
-	 * @param src
-	 *            The array list containing the bytes
-	 * @return An array of byte primitives containing the values, in order, present in <i>src</i>
-	 */
-	public static byte[] getBytes(ArrayList<Byte> src) {
-		byte[] bytes = new byte[src.size()];
-		int i = 0;
-		for (Byte b : src) {
-			bytes[i++] = b;
-		}
-
-		return bytes;
-	}
-
-	/**
-	 * Checks if the message is present in the array list of bytes
-	 * 
-	 * @param buffer
-	 *            The array list of bytes to check
-	 * @param msg
-	 *            The string to look for in the bytes
-	 * @return True, if the string is found in the bytes, false otherwise
-	 */
-	public static boolean contains(ArrayList<Byte> buffer, String msg) {
-		String bufString = new String(getBytes(buffer));
-		return bufString.contains(msg);
-	}
-
-	/**
-	 * Trim the trailing 0s from an array of bytes
-	 * 
-	 * @param buf
-	 *            The byte array
-	 * @return A new array which is a copy of the original array, truncated such that the trailing 0s in the original array are removed.
-	 */
-	public static byte[] trimTrailing0s(byte[] buf) {
-		int i;
-		for (i = 0; i < buf.length && buf[i] != 0; i++)
-			;
-		return Arrays.copyOf(buf, i);
-	}
-
-	/**
-	 * Trim the trailing 0s from an array of bytes
-	 * 
-	 * @param buf
-	 *            The byte array
-	 * @return A new array which is a copy of the original array, truncated such that the trailing 0s in the original array are removed.
-	 */
-	public static char[] trimTrailing0s(char[] buf) {
-		int i;
-		for (i = 0; i < buf.length && buf[i] != 0; i++)
-			;
-		return Arrays.copyOf(buf, i);
 	}
 
 	/**

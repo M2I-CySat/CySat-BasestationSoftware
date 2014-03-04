@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A reader that sits and waits for serial data to come in 
+ * A reader that sits and waits for serial data to come in
  * 
  * @author Adam Campbell
  */
@@ -17,11 +17,16 @@ public abstract class SerialDataReader implements Runnable {
 	/**
 	 * Delimiters to use when parsing input - controls when a line ends
 	 */
-	private String delimiters = "\r\n;$";
+	private String delimiters;
 
 	/**
-	 * Construct a serial data reader that reads from the given serial port and processes output according to
-	 * the handleSerialDataReceived() method
+	 * Default delimiters to use
+	 */
+	private static String defaultDelimiters = "\r\n;$";
+
+	/**
+	 * Construct a serial data reader that reads from the given serial port and processes output according to the handleSerialDataReceived()
+	 * method
 	 * 
 	 * @param serialIn
 	 *            The input stream for the serial port
@@ -31,7 +36,29 @@ public abstract class SerialDataReader implements Runnable {
 	 *            The serial port number
 	 */
 	public SerialDataReader(InputStream serialIn) {
+		this(serialIn, defaultDelimiters);
+	}
+
+	/**
+	 * Construct a serial data reader that reads from the given serial port and processes output according to the handleSerialDataReceived()
+	 * method
+	 * 
+	 * @param serialIn
+	 *            The input stream for the serial port
+	 * @param server
+	 *            The server that this reader belongs to
+	 * @param serialPortNum
+	 *            The serial port number
+	 * @param delimiters
+	 *            The delimiters for buffering the serial input - null/empty delimiter string means all characters will be accepted
+	 */
+	public SerialDataReader(InputStream serialIn, String delimiters) {
+		if (serialIn == null) {
+			throw new IllegalArgumentException("Serial inputstream cannot be null!");
+		}
+
 		this.serialIn = serialIn;
+		this.delimiters = delimiters;
 	}
 
 	@Override
@@ -71,7 +98,7 @@ public abstract class SerialDataReader implements Runnable {
 		while ((data = in.read()) != -1) {
 			sb.append((char) data);
 
-			if (delimiters.contains("" + ((char) data))) {
+			if (delimiters == null || delimiters.isEmpty() || delimiters.contains("" + ((char) data))) {
 				return sb.toString();
 			}
 		}

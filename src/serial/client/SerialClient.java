@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import serial.SerialUtils;
 
 /**
  * A serial client that handles reading to and writing from serial devices
@@ -62,6 +65,15 @@ public abstract class SerialClient {
 	public void die() {
 		state = State.DEAD;
 	}
+	
+	/**
+	 * Determine whether this client is alive or not
+	 * @return
+	 * Returns true precisely when this.state == State.ALIVE
+	 */
+	public boolean isAlive() {
+		return state == State.ALIVE;
+	}
 
 	/**
 	 * Return the client state
@@ -111,6 +123,46 @@ public abstract class SerialClient {
 			}
 		}
 	}
+	
+	public String waitForResponse() {
+		return waitForResponse(SerialUtils.DEFAULT_SERIAL_RESPONSE_TIMEOUT);
+	}
+	
+	public String waitForResponse(int timeoutMillis) {
+		return writeAndWaitForResponse(null, timeoutMillis);
+	}
+	
+	public String writeAndWaitForResponse(String msg) {
+		return writeAndWaitForResponse(msg, SerialUtils.DEFAULT_SERIAL_RESPONSE_TIMEOUT);
+	}
+	
+	public String writeAndWaitForResponse(String msg, int timeoutInMillis) {
+		final AtomicReference<String> response = new AtomicReference<>();
+		this.addListener(new SerialBufferedDataListener() {
+			@Override
+			public void serialBufferedDataReceived(String data) {
+				response.set(data);
+			}
+		});
+		if (msg != null) {
+			try {
+				this.write(msg);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		long startWaitTime = System.currentTimeMillis();
+		while (response.get() == null && System.currentTimeMillis() - startWaitTime < timeoutInMillis) {
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return response.get();
+	}
 
 	
 	/**
@@ -120,7 +172,7 @@ public abstract class SerialClient {
 	 *            The data to write
 	 * @throws IOException
 	 */
-	public abstract void write(String data) throws IOException;
+	public abstract void write(String data) throws Exception;
 	
 	/**
 	 * Write data to the serial server as is, nothing added or removed

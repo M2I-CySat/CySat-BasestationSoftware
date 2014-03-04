@@ -7,9 +7,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.text.DefaultCaret;
 
-import serial.client.SerialTCPClient;
+import jssc.SerialPortException;
 import serial.client.SerialBufferedDataListener;
+import serial.client.SerialLocalClient;
+import serial.client.SerialClient.State;
 import api.OSBoard;
 
 public class CySatCommandTab extends JPanel {
@@ -24,20 +27,30 @@ public class CySatCommandTab extends JPanel {
 	}
 
 	private void initComponents() {
-		SerialTCPClient client = new SerialTCPClient("10.24.223.109", 2809, "joe", "password23", 0);
+		//SerialTCPClient client = new SerialTCPClient("10.24.223.109", 2809, "joe", "password23", 0);
+		SerialLocalClient client = null;
+//		try {
+//			client = new SerialLocalClient("COM5", 9600, "\r\n$");
+//		} catch (SerialPortException e1) {
+//			e1.printStackTrace();
+//		}
 		final OSBoard os = new OSBoard(client);
 
 		JButton hello = new JButton("Send 'Hello'");
 		hello.setFocusable(false);
 		add(hello);
 
-		final JTextArea response = new JTextArea(5, 30);
-		client.addListener(new SerialBufferedDataListener() {
-			@Override
-			public void serialBufferedDataReceived(String data) {
-				response.append(data + "\n");
-			}
-		});
+		final JTextArea response = new JTextArea(20, 30);
+		DefaultCaret caret = (DefaultCaret)response.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		if (client != null && client.getState() == State.ALIVE) {
+			client.addListener(new SerialBufferedDataListener() {
+				@Override
+				public void serialBufferedDataReceived(String data) {
+					response.append(data + "\n");
+				}
+			});
+		}
 
 		response.setText("Testing...\n\n");
 		hello.addActionListener(new ActionListener() {

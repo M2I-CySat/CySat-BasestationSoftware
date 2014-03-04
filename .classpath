@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
+	<classpathentry kind="lib" path="lib/RXTXcomm.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files/Java/jre7/bin"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/predict4java_1.1.158.4.jar" sourcepath="lib/predict4java-src.zip"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar" sourcepath="lib/apache-logging-src.zip"/>
@@ -22,5 +26,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="CySATBaseStation/lib"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/jSSC/jSSC-2.6.0-Release/jssc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

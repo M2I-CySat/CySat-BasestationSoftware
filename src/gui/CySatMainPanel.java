@@ -18,7 +18,8 @@ public class CySatMainPanel extends JTabbedPane {
 		addTab("Map View", mapTab);
 		setMnemonicAt(0, KeyEvent.VK_1);
 
-		addTab("Data Terminal View", dataTab);
+		//addTab("Data Terminal View", dataTab);
+		addTab("EPS", dataTab);
 		setMnemonicAt(1, KeyEvent.VK_2);
 
 		addTab("Command Tab", cmdTab);
