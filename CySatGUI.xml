@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project CySATBaseStation">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySatGUI.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="gui.CySatGUI"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/RXTXcomm.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/predict4java_1.1.158.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/commons-lang-2.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/commons-logging-1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/commons-lang3-3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/jplot2d-swing-0.7.1-full.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/jcommon-1.0.17.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/jfreechart-1.0.14.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/jogl.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/gluegen-rt.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/worldwind.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Adam/Dropbox/Java_Projects/CySATBaseStation/CySat-Basestation/lib/gluegen-rt-natives-linux-amd64.jar"/>
+        </jar>
+    </target>
+</project>

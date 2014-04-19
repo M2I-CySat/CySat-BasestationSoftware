@@ -154,7 +154,7 @@ public class SerialTCPClient extends SerialClient {
 	@Override
 	public void write(String data) throws IOException {
 		if (data != null && !data.isEmpty()) {
-			out.write(String.format("%d", serialPortNum, data).getBytes());
+			out.write(String.format("%d%s", serialPortNum, data).getBytes());
 		}
 	}
 

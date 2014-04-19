@@ -33,3 +33,4 @@ AAU CUBESAT
 
 http://www.celestrak.com/NORAD/elements/amateur.txt
 OSCAR 7 (AO-7) 
+TECHSAT 1B (GO-32)      

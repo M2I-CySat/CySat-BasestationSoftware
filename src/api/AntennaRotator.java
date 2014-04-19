@@ -184,11 +184,16 @@ public class AntennaRotator {
 		if (client.getState() == SerialTCPClient.State.ALIVE) {
 			AntennaRotator r = new AntennaRotator(client);
 			try {
-				r.pollServer();
-				System.out.println("Az: " + r.getCurrentAzimuth() + ", El: " + r.getCurrentElevation());
-			} catch (Exception e) {
+				r.rotateTo(150, 30);
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
+//			try {
+//				r.pollServer();
+//				System.out.println("Az: " + r.getCurrentAzimuth() + ", El: " + r.getCurrentElevation());
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 		}
 		System.exit(0);
 	}
